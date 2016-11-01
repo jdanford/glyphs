@@ -29,6 +29,9 @@ function index(x, y) {
 var gridElement = document.getElementById("grid");
 var startButton = document.getElementById("start-button");
 var stopButton = document.getElementById("stop-button");
+var saveButton = document.getElementById("save-button");
+var loadButton = document.getElementById("load-button");
+var clearButton = document.getElementById("clear-button");
 
 function setGlyph(cellElement, alias) {
     cellElement.dataset.alias = alias;
@@ -60,8 +63,16 @@ for (var y = 0; y < HEIGHT; y++) {
 }
 
 gridElement.addEventListener("click", function (event) {
-    if (event.target && event.target.nodeName === "TD") {
-        var cellElement = event.target;
+    var nodeName = event.target && event.target.nodeName;
+
+    var cellElement;
+    if (nodeName === "TD") {
+        cellElement = event.target;
+    } else if (nodeName === "I") {
+        cellElement = event.target.parentNode;
+    }
+
+    if (cellElement) {
         var alias = prompt("Glyph:", "");
         setGlyph(cellElement, alias);
     }
@@ -124,12 +135,55 @@ function stop() {
     running = false;
 }
 
+function save() {
+    var name = prompt("Name:", "");
+    var data = grid.map(function (cellElement) {
+        return cellElement.dataset.alias;
+    }).join(",");
+
+    console.log(data);
+    localStorage.setItem(name, data);
+}
+
+function load() {
+    var name = prompt("Name:", "");
+    var data = localStorage.getItem(name).split(",");
+    console.log(data);
+
+    if (data) {
+        for (var i = 0; i < WIDTH * HEIGHT; i++) {
+            var cellElement = grid[i];
+            var alias = data[i];
+            setGlyph(cellElement, alias);
+        }
+    }
+}
+
+function clear() {
+    for (var i = 0; i < WIDTH * HEIGHT; i++) {
+        var cellElement = grid[i];
+        setGlyph(cellElement, "");
+    }
+}
+
 startButton.addEventListener("click", function (event) {
     start();
 });
 
 stopButton.addEventListener("click", function (event) {
     stop();
+});
+
+saveButton.addEventListener("click", function (event) {
+    save();
+});
+
+loadButton.addEventListener("click", function (event) {
+    load();
+});
+
+clearButton.addEventListener("click", function (event) {
+    clear();
 });
 
 // Definitions
