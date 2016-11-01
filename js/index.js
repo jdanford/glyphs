@@ -6,6 +6,7 @@ var STEP_INTERVAL = 200;
 var ICON_CLASS_BASE = "fa";
 var ICON_CLASS_PREFIX = "fa-";
 var ACTIVE_CLASS = "active";
+var LAST_SAVED_KEY = "last-saved";
 
 // Globals
 
@@ -22,16 +23,16 @@ var activeCell = null;
 var running = false;
 var lastStepTime = 0;
 
-function index(x, y) {
-    return y * WIDTH + x;
-}
-
 var gridElement = document.getElementById("grid");
 var startButton = document.getElementById("start-button");
 var stopButton = document.getElementById("stop-button");
 var saveButton = document.getElementById("save-button");
 var loadButton = document.getElementById("load-button");
 var clearButton = document.getElementById("clear-button");
+
+function index(x, y) {
+    return y * WIDTH + x;
+}
 
 function setGlyph(cellElement, alias) {
     cellElement.dataset.alias = alias;
@@ -45,38 +46,72 @@ function setGlyph(cellElement, alias) {
     }
 }
 
-for (var y = 0; y < HEIGHT; y++) {
-    var rowElement = document.createElement("tr");
-    gridElement.appendChild(rowElement);
+function initGrid() {
+    var name = localStorage.getItem(LAST_SAVED_KEY);
+    var data;
 
-    for (var x = 0; x < WIDTH; x++) {
-        var cellElement = document.createElement("td");
-        var iconElement = document.createElement("i");
-        cellElement.appendChild(iconElement);
-        rowElement.appendChild(cellElement);
+    if (name) {
+        data = localStorage.getItem(name).split(",");
+    }
 
-        setGlyph(cellElement, "");
+    for (var y = 0; y < HEIGHT; y++) {
+        var rowElement = document.createElement("tr");
+        gridElement.appendChild(rowElement);
 
-        var i = index(x, y);
-        grid[i] = cellElement;
+        for (var x = 0; x < WIDTH; x++) {
+            var cellElement = document.createElement("td");
+            var iconElement = document.createElement("i");
+            cellElement.appendChild(iconElement);
+            rowElement.appendChild(cellElement);
+
+            var i = index(x, y);
+            setGlyph(cellElement, data ? data[i] : "");
+            grid[i] = cellElement;
+        }
     }
 }
 
-gridElement.addEventListener("click", function (event) {
-    var nodeName = event.target && event.target.nodeName;
+function init() {
+    initGrid();
 
-    var cellElement;
-    if (nodeName === "TD") {
-        cellElement = event.target;
-    } else if (nodeName === "I") {
-        cellElement = event.target.parentNode;
-    }
+    gridElement.addEventListener("click", function (event) {
+        var nodeName = event.target && event.target.nodeName;
 
-    if (cellElement) {
-        var alias = prompt("Glyph:", "");
-        setGlyph(cellElement, alias);
-    }
-});
+        var cellElement;
+        if (nodeName === "TD") {
+            cellElement = event.target;
+        } else if (nodeName === "I") {
+            cellElement = event.target.parentNode;
+        }
+
+        if (cellElement) {
+            var alias = prompt("Glyph:", "");
+            setGlyph(cellElement, alias);
+        }
+    });
+
+    startButton.addEventListener("click", function (event) {
+        start();
+    });
+
+    stopButton.addEventListener("click", function (event) {
+        stop();
+    });
+
+    saveButton.addEventListener("click", function (event) {
+        var name = prompt("Name:", "");
+        save(name);
+    });
+
+    loadButton.addEventListener("click", function (event) {
+        var name = prompt("Name:", "");
+        load(name);
+    });
+
+    clearButton.addEventListener("click", function (event) {
+        clear();
+    });
+}
 
 function step() {
     if (activeCell) {
@@ -135,20 +170,17 @@ function stop() {
     running = false;
 }
 
-function save() {
-    var name = prompt("Name:", "");
+function save(name) {
     var data = grid.map(function (cellElement) {
         return cellElement.dataset.alias;
     }).join(",");
 
-    console.log(data);
     localStorage.setItem(name, data);
+    localStorage.setItem(LAST_SAVED_KEY, name);
 }
 
-function load() {
-    var name = prompt("Name:", "");
+function load(name) {
     var data = localStorage.getItem(name).split(",");
-    console.log(data);
 
     if (data) {
         for (var i = 0; i < WIDTH * HEIGHT; i++) {
@@ -165,26 +197,6 @@ function clear() {
         setGlyph(cellElement, "");
     }
 }
-
-startButton.addEventListener("click", function (event) {
-    start();
-});
-
-stopButton.addEventListener("click", function (event) {
-    stop();
-});
-
-saveButton.addEventListener("click", function (event) {
-    save();
-});
-
-loadButton.addEventListener("click", function (event) {
-    load();
-});
-
-clearButton.addEventListener("click", function (event) {
-    clear();
-});
 
 // Definitions
 
@@ -236,3 +248,7 @@ dictionary["counter-clockwise"] = {
         direction = (direction - 1 + 4) % 4;
     }
 };
+
+// Initialization
+
+init();
