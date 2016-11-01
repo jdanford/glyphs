@@ -1,0 +1,18 @@
+#container {
+    margin: 10px;
+}
+
+#controls {
+    margin-bottom: 10px;
+}
+
+#grid td {
+    width: 16px;
+    height: 16px;
+    background: #fafafa;
+    border: 1px solid #ccc;
+}
+
+#grid td.active {
+    background: #ffe0a4;
+}
