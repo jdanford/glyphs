@@ -6,22 +6,21 @@ var STEP_INTERVAL = 200;
 var ICON_CLASS_BASE = "fa";
 var ICON_CLASS_PREFIX = "fa-";
 var ACTIVE_CLASS = "active";
-var LAST_SAVED_KEY = "last-saved";
+var STORAGE_KEY = "grid-data";
 
-// Globals
+// Variables
 
-var direction = RIGHT;
-var position = {
-    x: 0,
-    y: 0
-};
-
-var stack = [];
-var dictionary = {};
 var grid = new Array(WIDTH * HEIGHT);
-var activeCell = null;
-var running = false;
-var lastStepTime = 0;
+var dictionary = {};
+
+var direction;
+var position;
+var stack;
+var activeCell;
+var running;
+var lastStepTime;
+
+// DOM elements
 
 var gridElement = document.getElementById("grid");
 var startButton = document.getElementById("start-button");
@@ -29,6 +28,8 @@ var stopButton = document.getElementById("stop-button");
 var saveButton = document.getElementById("save-button");
 var loadButton = document.getElementById("load-button");
 var clearButton = document.getElementById("clear-button");
+
+// Functions
 
 function index(x, y) {
     return y * WIDTH + x;
@@ -42,16 +43,28 @@ function setGlyph(cellElement, alias) {
 
     if (alias) {
         var glyph = dictionary[alias];
-        iconElement.classList.add(ICON_CLASS_PREFIX + glyph.className);
+        if (glyph) {
+            var className = ICON_CLASS_PREFIX + glyph.className;
+            iconElement.classList.add(className);
+        }
     }
 }
 
+function initState() {
+    direction = RIGHT;
+    position = { x: 0, y: 0 };
+    stack = [];
+    activeCell = null;
+    running = false;
+    lastStepTime = 0;
+}
+
 function initGrid() {
-    var name = localStorage.getItem(LAST_SAVED_KEY);
+    var textData = localStorage.getItem(STORAGE_KEY);
     var data;
 
-    if (name) {
-        data = localStorage.getItem(name).split(",");
+    if (textData) {
+        data = textData.split(",");
     }
 
     for (var y = 0; y < HEIGHT; y++) {
@@ -72,6 +85,7 @@ function initGrid() {
 }
 
 function init() {
+    initState();
     initGrid();
 
     gridElement.addEventListener("click", function (event) {
@@ -87,6 +101,7 @@ function init() {
         if (cellElement) {
             var alias = prompt("Glyph:", "");
             setGlyph(cellElement, alias);
+            save();
         }
     });
 
@@ -99,17 +114,19 @@ function init() {
     });
 
     saveButton.addEventListener("click", function (event) {
-        var name = prompt("Name:", "");
-        save(name);
+        alert(dataAsString());
     });
 
     loadButton.addEventListener("click", function (event) {
-        var name = prompt("Name:", "");
-        load(name);
+        var textData = prompt("Data:", "");
+        load(textData);
     });
 
     clearButton.addEventListener("click", function (event) {
-        clear();
+        var message = "Are you sure?";
+        if (confirm(message)) {
+            reset();
+        }
     });
 }
 
@@ -170,19 +187,24 @@ function stop() {
     running = false;
 }
 
-function save(name) {
-    var data = grid.map(function (cellElement) {
-        return cellElement.dataset.alias;
+function dataAsString() {
+    return grid.map(function (cellElement) {
+        return cellElement.dataset.alias || "";
     }).join(",");
-
-    localStorage.setItem(name, data);
-    localStorage.setItem(LAST_SAVED_KEY, name);
 }
 
-function load(name) {
-    var data = localStorage.getItem(name).split(",");
+function save() {
+    var data = dataAsString();
+    localStorage.setItem(STORAGE_KEY, data);
+}
 
-    if (data) {
+function load(textData) {
+    if (textData === undefined) {
+        textData = localStorage.getItem(STORAGE_KEY);
+    }
+
+    if (textData) {
+        var data = textData.split(",");
         for (var i = 0; i < WIDTH * HEIGHT; i++) {
             var cellElement = grid[i];
             var alias = data[i];
@@ -191,7 +213,9 @@ function load(name) {
     }
 }
 
-function clear() {
+function reset() {
+    initState();
+
     for (var i = 0; i < WIDTH * HEIGHT; i++) {
         var cellElement = grid[i];
         setGlyph(cellElement, "");
@@ -235,19 +259,86 @@ dictionary["arrows"] = {
     }
 };
 
-dictionary["clockwise"] = {
+dictionary["rotate-cw"] = {
     className: "repeat",
     effect: function () {
         direction = (direction + 1 + 4) % 4;
     }
 };
 
-dictionary["counter-clockwise"] = {
+dictionary["rotate-ccw"] = {
     className: "undo",
     effect: function () {
         direction = (direction - 1 + 4) % 4;
     }
 };
+
+dictionary["car"] = {
+    className: "car",
+    effect: function () {
+        stack.push(stack[stack.length - 1]);
+    }
+};
+
+dictionary["plane"] = {
+    className: "plane",
+    effect: function () {
+        stack.push(stack[stack.length - 2]);
+    }
+};
+
+dictionary["bomb"] = {
+    className: "bomb",
+    effect: function () {
+        stack.pop();
+    }
+};
+
+dictionary["snowflake"] = {
+    className: "snowflake-o",
+    effect: function () {
+        var i = stack.length - 2, j = stack.length - 1;
+        var tmp = stack[i];
+        stack[i] = stack[j];
+        stack[j] = tmp;
+    }
+};
+
+dictionary["leaf"] = {
+    className: "leaf",
+    effect: function () {
+        stack.push(0);
+    }
+};
+
+dictionary["sun"] = {
+    className: "sun-o",
+    effect: function () {
+        stack[stack.length - 1]++;
+    }
+};
+
+dictionary["moon"] = {
+    className: "moon-o",
+    effect: function () {
+        stack[stack.length - 1]--;
+    }
+};
+
+dictionary["smile"] = {
+    className: "smile-o",
+    effect: function () {
+        var value = stack.pop();
+        stack[stack.length - 1] += value;
+    }
+}
+
+dictionary["printer"] = {
+    className: "print",
+    effect: function () {
+        console.log(stack[stack.length - 1]);
+    }
+}
 
 // Initialization
 

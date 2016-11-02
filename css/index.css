@@ -7,12 +7,18 @@
 }
 
 #grid td {
-    width: 16px;
-    height: 16px;
     background: #fafafa;
     border: 1px solid #ccc;
 }
 
 #grid td.active {
-    background: #ffe0a4;
+    background: #ffeba4;
+}
+
+#grid td i {
+    width: 18px;
+    height: 20px;
+    padding: 1px 2px;
+    text-align: center;
+    vertical-align: middle;
 }
