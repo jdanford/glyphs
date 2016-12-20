@@ -23,6 +23,7 @@ var lastStepTime;
 // DOM elements
 
 var gridElement = document.getElementById("grid");
+var outputElement = document.getElementById("output");
 var startButton = document.getElementById("start-button");
 var stopButton = document.getElementById("stop-button");
 var saveButton = document.getElementById("save-button");
@@ -123,7 +124,7 @@ function init() {
     });
 
     clearButton.addEventListener("click", function (event) {
-        var message = "Are you sure?";
+        var message = "Clear grid?";
         if (confirm(message)) {
             reset();
         }
@@ -222,6 +223,13 @@ function reset() {
     }
 }
 
+function print(text) {
+    var preElement = document.createElement("pre");
+    preElement.textContent = text;
+
+    outputElement.appendChild(preElement);
+}
+
 // Definitions
 
 dictionary["up"] = {
@@ -252,6 +260,42 @@ dictionary["left"] = {
     }
 };
 
+dictionary["up-circle"] = {
+    className: "arrow-circle-up",
+    effect: function () {
+        if (stack[stack.length - 1]) {
+            direction = UP;
+        }
+    }
+};
+
+dictionary["right-circle"] = {
+    className: "arrow-circle-right",
+    effect: function () {
+        if (stack[stack.length - 1]) {
+            direction = RIGHT;
+        }
+    }
+};
+
+dictionary["down-circle"] = {
+    className: "arrow-circle-down",
+    effect: function () {
+        if (stack[stack.length - 1]) {
+            direction = DOWN;
+        }
+    }
+};
+
+dictionary["left-circle"] = {
+    className: "arrow-circle-left",
+    effect: function () {
+        if (stack[stack.length - 1]) {
+            direction = LEFT;
+        }
+    }
+};
+
 dictionary["arrows"] = {
     className: "arrows",
     effect: function () {
@@ -259,17 +303,24 @@ dictionary["arrows"] = {
     }
 };
 
-dictionary["rotate-cw"] = {
-    className: "repeat",
+dictionary["rotate-right"] = {
+    className: "rotate-right",
     effect: function () {
         direction = (direction + 1 + 4) % 4;
     }
 };
 
-dictionary["rotate-ccw"] = {
-    className: "undo",
+dictionary["rotate-left"] = {
+    className: "rotate-left",
     effect: function () {
         direction = (direction - 1 + 4) % 4;
+    }
+};
+
+dictionary["exchange"] = {
+    className: "exchange",
+    effect: function () {
+        direction = (direction + 2 + 4) % 4;
     }
 };
 
@@ -331,14 +382,30 @@ dictionary["smile"] = {
         var value = stack.pop();
         stack[stack.length - 1] += value;
     }
-}
+};
 
-dictionary["printer"] = {
-    className: "print",
+dictionary["comment"] = {
+    className: "comment",
     effect: function () {
-        console.log(stack[stack.length - 1]);
+        print(stack[stack.length - 1]);
     }
-}
+};
+
+dictionary["eye"] = {
+    className: "eye",
+    effect: function () {
+        var string = prompt("Enter a number:", "");
+        var value = parseInt(string);
+        stack.push(value);
+    }
+};
+
+dictionary["close"] = {
+    className: "close",
+    effect: function () {
+        running = false;
+    }
+};
 
 // Initialization
 
