@@ -6,7 +6,6 @@ class GlyphGrid {
         this.width = options.width || 32;
         this.height = options.height || 32;
         this.stepInterval = options.stepInterval || 200;
-        this.storageKey = options.storageKey || "glyphs.grid-data";
 
         this.initState();
         this.initGrid();
@@ -16,16 +15,19 @@ class GlyphGrid {
         this.direction = RIGHT;
         this.position = {x: 0, y: 0};
         this.stack = [];
-        this.activeCell = null;
         this.running = false;
         this.lastStepTime = 0;
+
+        if (this.activeCell) {
+            this.activeCell.classList.remove(ACTIVE_CLASS);
+            this.activeCell = null;
+        }
     }
 
     initGrid() {
-        const textData = localStorage.getItem(this.storageKey);
-        const data = textData && textData.split(",");
-
         this.grid = new Array(this.width * this.height);
+
+        const data = this.getHashData();
 
         for (let y = 0; y < this.height; y++) {
             const rowElement = document.createElement("tr");
@@ -58,9 +60,11 @@ class GlyphGrid {
             if (cellElement) {
                 const alias = prompt("Glyph:", "");
                 this.setGlyph(cellElement, alias);
-                this.save();
+                this.updateHash();
             }
         });
+
+        window.onhashchange = _ => this.loadFromHash();
     }
 
     clearGrid() {
@@ -68,6 +72,8 @@ class GlyphGrid {
             const cellElement = this.grid[i];
             this.setGlyph(cellElement, "");
         }
+
+        this.updateHash();
     }
 
     setGlyph(cellElement, alias) {
@@ -124,9 +130,11 @@ class GlyphGrid {
         this.running = true;
 
         const callback = time => {
-            if (this.running) {
-                requestAnimationFrame(callback);
+            if (!this.running) {
+                return;
             }
+
+            requestAnimationFrame(callback);
 
             const nextStepTime = this.lastStepTime + this.stepInterval;
             if (time >= nextStepTime) {
@@ -142,36 +150,27 @@ class GlyphGrid {
         this.running = false;
     }
 
-    dataAsString() {
-        return this.grid.map(cellElement => cellElement.dataset.alias || "").join(",");
+    updateHash() {
+        window.location.hash = "#" + this.grid.map(cellElement => cellElement.dataset.alias || "").join(",");
     }
 
-    save() {
-        const data = this.dataAsString();
-        localStorage.setItem(this.storageKey, data);
+    loadFromHash() {
+        const data = this.getHashData();
+        for (let i = 0; i < this.width * this.height; i++) {
+            const cellElement = this.grid[i];
+            const alias = data[i];
+            this.setGlyph(cellElement, alias);
+        }
     }
 
-    load(textData) {
-        if (textData === undefined) {
-            textData = localStorage.getItem(this.storageKey);
-        }
-
-        if (textData) {
-            const data = textData.split(",");
-            for (let i = 0; i < this.width * this.height; i++) {
-                const cellElement = this.grid[i];
-                const alias = data[i];
-                this.setGlyph(cellElement, alias);
-            }
-
-            this.save();
-        }
+    getHashData() {
+        const hash = window.location.hash.slice(1);
+        return hash && hash.split(",");
     }
 
     reset() {
         this.initState();
         this.clearGrid();
-        this.save();
     }
 
     print(text) {
