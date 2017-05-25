@@ -4,6 +4,7 @@ const ICON_CLASS_PAUSE = "fa-pause";
 const gridElement = document.getElementById("grid");
 const outputElement = document.getElementById("output");
 const startButton = document.getElementById("start-button");
+const stepButton = document.getElementById("step-button");
 const stopButton = document.getElementById("stop-button");
 const clearButton = document.getElementById("clear-button");
 
@@ -24,6 +25,10 @@ grid.addListener("reset", updateButtonState);
 
 startButton.addEventListener("click", _ => {
     grid.toggle();
+});
+
+stepButton.addEventListener("click", _ => {
+    grid.step();
 });
 
 stopButton.addEventListener("click", _ => {

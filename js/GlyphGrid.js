@@ -120,6 +120,8 @@ class GlyphGrid extends EventEmitter {
 
         this.position.x = (this.position.x + this.width) % this.width;
         this.position.y = (this.position.y + this.height) % this.height;
+
+        this.emitEvent("step");
     }
 
     toggle() {
