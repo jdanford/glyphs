@@ -170,7 +170,7 @@ const BASIC_DICTIONARY = {
     "close": {
         className: "close",
         effect(grid) {
-            grid.running = false;
+            grid.reset();
         }
     },
 };

@@ -1,22 +1,40 @@
+const ICON_CLASS_PLAY = "fa-play";
+const ICON_CLASS_PAUSE = "fa-pause";
+
 const gridElement = document.getElementById("grid");
 const outputElement = document.getElementById("output");
 const startButton = document.getElementById("start-button");
 const stopButton = document.getElementById("stop-button");
 const clearButton = document.getElementById("clear-button");
 
+const setButtonState = running => {
+    const iconElement = startButton.getElementsByClassName(ICON_CLASS_BASE)[0];
+    const iconClass = running ? ICON_CLASS_PAUSE : ICON_CLASS_PLAY;
+
+    iconElement.className = ICON_CLASS_BASE;
+    iconElement.classList.add(iconClass);
+};
+
 const grid = new GlyphGrid({gridElement, outputElement, dictionary: BASIC_DICTIONARY});
 
-startButton.addEventListener("click", event => {
-    grid.start();
+const updateButtonState = _ => setButtonState(grid.running);
+grid.addListener("start", updateButtonState);
+grid.addListener("pause", updateButtonState);
+grid.addListener("reset", updateButtonState);
+
+startButton.addEventListener("click", _ => {
+    grid.toggle();
 });
 
-stopButton.addEventListener("click", event => {
-    grid.stop();
+stopButton.addEventListener("click", _ => {
+    grid.reset();
 });
 
-clearButton.addEventListener("click", event => {
+clearButton.addEventListener("click", _ => {
     const message = "Clear grid?";
     if (confirm(message)) {
-        grid.reset();
+        grid.clear();
     }
 });
+
+setButtonState(false);

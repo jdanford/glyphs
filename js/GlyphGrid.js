@@ -1,5 +1,6 @@
-class GlyphGrid {
+class GlyphGrid extends EventEmitter {
     constructor(options) {
+        super();
         this.gridElement = options.gridElement;
         this.outputElement = options.outputElement;
         this.dictionary = options.dictionary || {};
@@ -17,11 +18,6 @@ class GlyphGrid {
         this.stack = [];
         this.running = false;
         this.lastStepTime = 0;
-
-        if (this.activeCell) {
-            this.activeCell.classList.remove(ACTIVE_CLASS);
-            this.activeCell = null;
-        }
     }
 
     initGrid() {
@@ -126,8 +122,16 @@ class GlyphGrid {
         this.position.y = (this.position.y + this.height) % this.height;
     }
 
+    toggle() {
+        if (this.running) {
+            this.pause();
+        } else {
+            this.start();
+        }
+    }
+
     start() {
-        this.running = true;
+        this.setRunning(true);
 
         const callback = time => {
             if (!this.running) {
@@ -146,8 +150,29 @@ class GlyphGrid {
         requestAnimationFrame(callback);
     }
 
-    stop() {
-        this.running = false;
+    pause() {
+        this.setRunning(false);
+    }
+
+    reset() {
+        this.initState();
+
+        if (this.activeCell) {
+            this.activeCell.classList.remove(ACTIVE_CLASS);
+            this.activeCell = null;
+        }
+
+        this.emitEvent("reset");
+    }
+
+    setRunning(running) {
+        if (this.running === running) {
+            return;
+        }
+
+        this.running = running;
+        const eventType = running ? "start" : "pause";
+        this.emitEvent(eventType);
     }
 
     updateHash() {
@@ -168,8 +193,8 @@ class GlyphGrid {
         return hash && hash.split(",");
     }
 
-    reset() {
-        this.initState();
+    clear() {
+        this.reset();
         this.clearGrid();
     }
 
