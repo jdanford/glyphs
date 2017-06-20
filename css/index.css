@@ -6,9 +6,23 @@
     margin: 10px 0px;
 }
 
+#grid {
+    border-spacing: 0;
+}
+
 #grid td {
     background: #fafafa;
     border: 1px solid #ccc;
+    border-top-width: 0;
+    border-left-width: 0;
+}
+
+#grid tr:first-child td {
+    border-top-width: 1px;
+}
+
+#grid td:first-child {
+    border-left-width: 1px;
 }
 
 #grid td.active {
