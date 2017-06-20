@@ -1,15 +1,33 @@
+const ENCODING_CHARS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
 class GlyphGrid extends EventEmitter {
     constructor(options) {
         super();
         this.gridElement = options.gridElement;
         this.outputElement = options.outputElement;
-        this.dictionary = options.dictionary || {};
         this.width = options.width || 32;
         this.height = options.height || 32;
         this.stepInterval = options.stepInterval || 200;
 
+        this.dictionary = options.dictionary;
+        this.initCodingTables();
+
         this.initState();
         this.initGrid();
+
+        window.onhashchange = _ => this.loadFromWindow();
+        this.loadFromWindow();
+    }
+
+    initCodingTables() {
+        this.charTable = {};
+        this.aliasTable = {};
+
+        Object.keys(this.dictionary).forEach((alias, i) => {
+            const char = ENCODING_CHARS[i];
+            this.charTable[alias] = char;
+            this.aliasTable[char] = alias;
+        });
     }
 
     initState() {
@@ -22,26 +40,7 @@ class GlyphGrid extends EventEmitter {
 
     initGrid() {
         this.grid = new Array(this.width * this.height);
-
-        const data = this.getHashData();
-
-        for (let y = 0; y < this.height; y++) {
-            const rowElement = document.createElement("tr");
-            this.gridElement.appendChild(rowElement);
-
-            for (let x = 0; x < this.width; x++) {
-                const cellElement = document.createElement("td");
-                const iconElement = document.createElement("i");
-                cellElement.appendChild(iconElement);
-                rowElement.appendChild(cellElement);
-
-                const i = this.index(x, y);
-                this.grid[i] = cellElement;
-
-                const alias = data ? data[i] : "";
-                this.setGlyph(cellElement, alias);
-            }
-        }
+        this.fillGrid();
 
         this.gridElement.addEventListener("click", event => {
             const nodeName = event.target && event.target.nodeName;
@@ -56,11 +55,27 @@ class GlyphGrid extends EventEmitter {
             if (cellElement) {
                 const alias = prompt("Glyph:", "");
                 this.setGlyph(cellElement, alias);
-                this.updateHash();
+                this.saveToWindow();
             }
         });
+    }
 
-        window.onhashchange = _ => this.loadFromHash();
+    fillGrid() {
+        for (let y = 0; y < this.height; y++) {
+            const rowElement = document.createElement("tr");
+            this.gridElement.appendChild(rowElement);
+
+            for (let x = 0; x < this.width; x++) {
+                const cellElement = document.createElement("td");
+                const iconElement = document.createElement("i");
+                cellElement.appendChild(iconElement);
+                rowElement.appendChild(cellElement);
+
+                const i = this.index(x, y);
+                this.grid[i] = cellElement;
+                this.setGlyph(cellElement, "");
+            }
+        }
     }
 
     clearGrid() {
@@ -68,15 +83,13 @@ class GlyphGrid extends EventEmitter {
             const cellElement = this.grid[i];
             this.setGlyph(cellElement, "");
         }
-
-        this.updateHash();
     }
 
     setGlyph(cellElement, alias) {
-        cellElement.dataset.alias = alias;
-
         const iconElement = cellElement.childNodes[0];
         iconElement.className = ICON_CLASS_BASE;
+
+        cellElement.dataset.alias = alias;
 
         if (alias) {
             const glyph = this.dictionary[alias];
@@ -167,6 +180,12 @@ class GlyphGrid extends EventEmitter {
         this.emitEvent("reset");
     }
 
+    clear() {
+        this.reset();
+        this.clearGrid();
+        this.saveToWindow();
+    }
+
     setRunning(running) {
         if (this.running === running) {
             return;
@@ -177,33 +196,75 @@ class GlyphGrid extends EventEmitter {
         this.emitEvent(eventType);
     }
 
-    updateHash() {
-        window.location.hash = "#" + this.grid.map(cellElement => cellElement.dataset.alias || "").join(",");
-    }
+    getHash() {
+        let chunk = [];
+        let currentChunk = null;
 
-    loadFromHash() {
-        const data = this.getHashData();
         for (let i = 0; i < this.width * this.height; i++) {
             const cellElement = this.grid[i];
-            const alias = data[i];
+            const alias = cellElement.dataset.alias;
+
+            if (!alias) {
+                if (currentChunk) {
+                    chunk.push(currentChunk);
+                    currentChunk = null;
+                }
+
+                continue;
+            }
+
+            if (!currentChunk) {
+                currentChunk = {index: i, string: ""};
+            }
+
+            const char = this.charTable[alias];
+            currentChunk.string += char;
+        }
+
+        if (currentChunk && currentChunk.string) {
+            chunk.push(currentChunk);
+        }
+
+        return chunk.map(({index, string}) => `${index}:${string}`).join("-");
+    }
+
+    loadFromHash(hash) {
+        this.clearGrid();
+
+        const chunks = hash.split("-");
+        if (!chunks[0]) {
+            return;
+        }
+
+        chunks.forEach(chunk => {
+            const [indexString, string] = chunk.split(":");
+            const index = parseInt(indexString);
+            this.loadFromChunk(index, string);
+        });
+    }
+
+    loadFromChunk(index, string) {
+        for (let i = 0; i < string.length; i++) {
+            const char = string[i];
+            const alias = this.aliasTable[char];
+            const cellElement = this.grid[index + i];
             this.setGlyph(cellElement, alias);
         }
     }
 
-    getHashData() {
-        const hash = window.location.hash.slice(1);
-        return hash && hash.split(",");
+    saveToWindow() {
+        const hash = this.getHash();
+        window.location.hash = "#" + hash;
     }
 
-    clear() {
-        this.reset();
-        this.clearGrid();
+    loadFromWindow() {
+        const hash = window.location.hash.slice(1);
+        this.loadFromHash(hash);
     }
 
     print(text) {
         const preElement = document.createElement("pre");
         preElement.textContent = text;
-
         outputElement.appendChild(preElement);
     }
 
