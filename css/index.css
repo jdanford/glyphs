@@ -18,6 +18,7 @@ html.dark {
 
 body {
     background: var(--body-color);
+    font-size: 16px;
 }
 
 #container {
@@ -77,7 +78,7 @@ body {
 }
 
 #output {
-    width: 600px;
+    width: 579px;
     margin: var(--margin-size) 0;
     padding: var(--margin-size);
     border: 1px solid var(--border-color);

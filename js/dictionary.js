@@ -2,28 +2,28 @@ const BASIC_DICTIONARY = {
     "up": {
         className: "arrow-up",
         effect(grid) {
-            grid.direction = UP;
+            grid.direction = Direction.UP;
         }
     },
 
     "right": {
         className: "arrow-right",
         effect(grid) {
-            grid.direction = RIGHT;
+            grid.direction = Direction.RIGHT;
         }
     },
 
     "down": {
         className: "arrow-down",
         effect(grid) {
-            grid.direction = DOWN;
+            grid.direction = Direction.DOWN;
         }
     },
 
     "left": {
         className: "arrow-left",
         effect(grid) {
-            grid.direction = LEFT;
+            grid.direction = Direction.LEFT;
         }
     },
 
@@ -31,7 +31,7 @@ const BASIC_DICTIONARY = {
         className: "arrow-circle-up",
         effect(grid) {
             if (grid.getStackItem(0)) {
-                grid.direction = UP;
+                grid.direction = Direction.UP;
             }
         }
     },
@@ -40,7 +40,7 @@ const BASIC_DICTIONARY = {
         className: "arrow-circle-right",
         effect(grid) {
             if (grid.getStackItem(0)) {
-                grid.direction = RIGHT;
+                grid.direction = Direction.RIGHT;
             }
         }
     },
@@ -49,7 +49,7 @@ const BASIC_DICTIONARY = {
         className: "arrow-circle-down",
         effect(grid) {
             if (grid.getStackItem(0)) {
-                grid.direction = DOWN;
+                grid.direction = Direction.DOWN;
             }
         }
     },
@@ -58,7 +58,7 @@ const BASIC_DICTIONARY = {
         className: "arrow-circle-left",
         effect(grid) {
             if (grid.getStackItem(0)) {
-                grid.direction = LEFT;
+                grid.direction = Direction.LEFT;
             }
         }
     },

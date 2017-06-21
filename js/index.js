@@ -1,6 +1,3 @@
-const ICON_CLASS_PLAY = "fa-play";
-const ICON_CLASS_PAUSE = "fa-pause";
-
 const gridElement = document.getElementById("grid");
 const outputElement = document.getElementById("output");
 const startButton = document.getElementById("start-button");

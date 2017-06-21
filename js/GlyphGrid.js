@@ -1,21 +1,26 @@
-const ENCODING_CHARS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-const CHUNK_SEPARATOR = ":";
-const GROUP_SEPARATOR = "-";
+const getCellElement = event => {
+    const nodeName = event.target && event.target.nodeName;
+    switch (nodeName) {
+        case "TD":
+            return event.target;
+        case "I":
+            return event.target.parentNode;
+        default:
+            return null;
+    }
+};
 
 class GlyphGrid extends EventEmitter {
     constructor(options) {
         super();
+
         this.gridElement = options.gridElement;
         this.outputElement = options.outputElement;
-        this.width = options.width || 32;
-        this.height = options.height || 32;
-        this.stepInterval = options.stepInterval || 200;
-
         this.dictionary = options.dictionary;
-        this.initCodingTables();
 
         this.initState();
         this.initGrid();
+        this.initCodingTables();
 
         window.onhashchange = _ => this.loadFromWindow();
         this.loadFromWindow();
@@ -33,27 +38,23 @@ class GlyphGrid extends EventEmitter {
     }
 
     initState() {
-        this.direction = RIGHT;
+        this.direction = INITIAL_DIRECTION;
         this.position = {x: 0, y: 0};
         this.stack = [];
+
         this.running = false;
         this.lastStepTime = 0;
+        this.stepInterval = INITIAL_STEP_INTERVAL;
     }
 
     initGrid() {
+        this.width = GRID_WIDTH;
+        this.height = GRID_HEIGHT;
         this.grid = new Array(this.width * this.height);
         this.fillGrid();
 
         this.gridElement.addEventListener("click", event => {
-            const nodeName = event.target && event.target.nodeName;
-
-            let cellElement;
-            if (nodeName === "TD") {
-                cellElement = event.target;
-            } else if (nodeName === "I") {
-                cellElement = event.target.parentNode;
-            }
-
+            const cellElement = getCellElement(event);
             if (cellElement) {
                 const alias = prompt("Glyph:", "");
                 this.setGlyph(cellElement, alias);
@@ -275,7 +276,7 @@ class GlyphGrid extends EventEmitter {
     print(text) {
         const preElement = document.createElement("pre");
         preElement.textContent = text;
-        outputElement.appendChild(preElement);
+        this.outputElement.appendChild(preElement);
     }
 
     index(x, y) {
