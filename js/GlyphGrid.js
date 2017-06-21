@@ -1,4 +1,6 @@
 const ENCODING_CHARS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+const CHUNK_SEPARATOR = ":";
+const GROUP_SEPARATOR = "-";
 
 class GlyphGrid extends EventEmitter {
     constructor(options) {
@@ -213,11 +215,15 @@ class GlyphGrid extends EventEmitter {
                 continue;
             }
 
+            const char = this.charTable[alias];
+            if (!char) {
+                continue;
+            }
+
             if (!currentChunk) {
                 currentChunk = {index: i, string: ""};
             }
 
-            const char = this.charTable[alias];
             currentChunk.string += char;
         }
 
@@ -225,19 +231,19 @@ class GlyphGrid extends EventEmitter {
             chunk.push(currentChunk);
         }
 
-        return chunk.map(({index, string}) => `${index}:${string}`).join("-");
+        return chunk.map(({index, string}) => index + CHUNK_SEPARATOR + string).join(GROUP_SEPARATOR);
     }
 
     loadFromHash(hash) {
         this.clearGrid();
 
-        const chunks = hash.split("-");
+        const chunks = hash.split(GROUP_SEPARATOR);
         if (!chunks[0]) {
             return;
         }
 
         chunks.forEach(chunk => {
-            const [indexString, string] = chunk.split(":");
+            const [indexString, string] = chunk.split(CHUNK_SEPARATOR);
             const index = parseInt(indexString);
             this.loadFromChunk(index, string);
         });
@@ -247,6 +253,10 @@ class GlyphGrid extends EventEmitter {
         for (let i = 0; i < string.length; i++) {
             const char = string[i];
             const alias = this.aliasTable[char];
+            if (!alias) {
+                continue;
+            }
+
             const cellElement = this.grid[index + i];
             this.setGlyph(cellElement, alias);
         }
