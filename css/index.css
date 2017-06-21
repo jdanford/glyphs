@@ -1,54 +1,76 @@
+:root {
+    --margin-size: 10px;
+}
+
+html {
+    --body-color: #fff;
+    --background-color: #fafafa;
+    --foreground-color: #222;
+    --border-color: #aaa;
+}
+
+html.dark {
+    --body-color: #111;
+    --background-color: #222;
+    --foreground-color: #ddd;
+    --border-color: #444;
+}
+
+body {
+    background: var(--body-color);
+}
+
 #container {
-    margin: 10px;
+    margin: var(--margin-size);
 }
 
 #controls {
-    margin: 10px 0px;
+    margin: var(--margin-size) 0;
 }
 
 #controls button {
     width: 2.5em;
-    border-radius: 3px;
-    background: white;
-    border: 1px solid #ccc;
     padding: 2px 5px;
+    border: 1px solid var(--border-color);
+    background: var(--background-color);
+    color: var(--foreground-color);
 }
 
-#start-button {
-    background: #eaffea;
+#controls #start-button {
+    border-color: #207d20;
 }
 
-#step-button {
-    background: #e5f9ff;
+#controls #step-button {
+    border-color: #3964a5;
+}
+
+#controls #stop-button {
+    border-color: #6c1688;
+}
+
+#controls #clear-button {
+    border-color: #822020;
 }
 
 #grid {
     border-spacing: 0;
+    border-collapse: collapse;
 }
 
 #grid td {
-    background: #fafafa;
-    border: 1px solid #ccc;
-    border-top-width: 0;
-    border-left-width: 0;
-}
-
-#grid tr:first-child td {
-    border-top-width: 1px;
-}
-
-#grid td:first-child {
-    border-left-width: 1px;
+    border: 1px solid var(--border-color);
+    background: var(--background-color);
+    color: var(--foreground-color);
 }
 
 #grid td.active {
-    background: #ddefff;
-    color: #003163;
+    background: var(--foreground-color);
+    color: var(--background-color);
 }
 
 #grid td i {
-    width: 18px;
-    height: 20px;
+    width: 1.125em;
+    height: 1.25em;
     padding: 1px 2px;
     text-align: center;
     vertical-align: middle;
@@ -56,10 +78,11 @@
 
 #output {
     width: 600px;
-    margin: 10px 0px;
-    padding: 10px;
-    background: #fafafa;
-    border: 1px solid #ccc;
+    margin: var(--margin-size) 0;
+    padding: var(--margin-size);
+    border: 1px solid var(--border-color);
+    background: var(--background-color);
+    color: var(--foreground-color);
 }
 
 #output pre {
