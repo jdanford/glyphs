@@ -107,13 +107,10 @@ class GlyphGrid extends EventEmitter {
     }
 
     step() {
-        if (this.activeCell) {
-            this.activeCell.classList.remove(ACTIVE_CLASS);
-        }
-
         const i = this.index(this.position.x, this.position.y);
-        this.activeCell = this.grid[i];
 
+        this.clearActiveCell();
+        this.activeCell = this.getCurrentCell();
         this.activeCell.classList.add(ACTIVE_CLASS);
 
         const alias = this.activeCell.dataset.alias;
@@ -177,13 +174,15 @@ class GlyphGrid extends EventEmitter {
 
     reset() {
         this.initState();
+        this.clearActiveCell();
+        this.emitEvent("reset");
+    }
 
+    clearActiveCell() {
         if (this.activeCell) {
             this.activeCell.classList.remove(ACTIVE_CLASS);
             this.activeCell = null;
         }
-
-        this.emitEvent("reset");
     }
 
     clear() {
@@ -287,6 +286,11 @@ class GlyphGrid extends EventEmitter {
         while (this.outputElement.firstChild) {
             this.outputElement.removeChild(this.outputElement.firstChild);
         }
+    }
+
+    getCurrentCell() {
+        const i = this.index(this.position.x, this.position.y);
+        return this.grid[i];
     }
 
     index(x, y) {

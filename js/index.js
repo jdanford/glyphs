@@ -4,6 +4,7 @@ const startButton = document.getElementById("start-button");
 const stepButton = document.getElementById("step-button");
 const stopButton = document.getElementById("stop-button");
 const clearButton = document.getElementById("clear-button");
+const darkThemeCheckbox = document.getElementById("dark-theme-checkbox");
 
 const setButtonState = running => {
     const iconElement = startButton.getElementsByClassName(ICON_CLASS_BASE)[0];
@@ -11,6 +12,10 @@ const setButtonState = running => {
 
     iconElement.className = ICON_CLASS_BASE;
     iconElement.classList.add(iconClass);
+};
+
+const setDarkTheme = useDarkTheme => {
+    document.body.classList.toggle(DARK_THEME_CLASS, useDarkTheme);
 };
 
 const grid = new GlyphGrid({gridElement, outputElement});
@@ -39,4 +44,13 @@ clearButton.addEventListener("click", _ => {
     }
 });
 
+darkThemeCheckbox.addEventListener("change", _ => {
+    const useDarkTheme = darkThemeCheckbox.checked;
+    setDarkTheme(useDarkTheme);
+});
+
+const gridWidth = gridElement.offsetWidth;
+outputElement.style.setProperty("width", `${gridWidth}px`);
+
 setButtonState(false);
+setDarkTheme(false);
