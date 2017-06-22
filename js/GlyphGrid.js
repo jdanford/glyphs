@@ -16,25 +16,13 @@ class GlyphGrid extends EventEmitter {
 
         this.gridElement = options.gridElement;
         this.outputElement = options.outputElement;
-        this.dictionary = options.dictionary;
 
         this.initState();
         this.initGrid();
-        this.initCodingTables();
+        this.initDictionary(glyphs);
 
         window.onhashchange = _ => this.loadFromWindow();
         this.loadFromWindow();
-    }
-
-    initCodingTables() {
-        this.charTable = {};
-        this.aliasTable = {};
-
-        Object.keys(this.dictionary).forEach((alias, i) => {
-            const char = ENCODING_CHARS[i];
-            this.charTable[alias] = char;
-            this.aliasTable[char] = alias;
-        });
     }
 
     initState() {
@@ -60,6 +48,21 @@ class GlyphGrid extends EventEmitter {
                 this.setGlyph(cellElement, alias);
                 this.saveToWindow();
             }
+        });
+    }
+
+    initDictionary(glyphs) {
+        this.dictionary = {};
+        this.charTable = {};
+        this.aliasTable = {};
+
+        glyphs.forEach((glyph, i) => {
+            const {alias} = glyph;
+            this.dictionary[alias] = glyph;
+
+            const char = ENCODING_CHARS[i];
+            this.charTable[alias] = char;
+            this.aliasTable[char] = alias;
         });
     }
 
@@ -97,7 +100,7 @@ class GlyphGrid extends EventEmitter {
         if (alias) {
             const glyph = this.dictionary[alias];
             if (glyph) {
-                const className = ICON_CLASS_PREFIX + glyph.className;
+                const className = ICON_CLASS_PREFIX + glyph.icon;
                 iconElement.classList.add(className);
             }
         }
@@ -120,16 +123,16 @@ class GlyphGrid extends EventEmitter {
         }
 
         switch (this.direction) {
-            case UP:
+            case Direction.UP:
                 this.position.y -= 1;
                 break;
-            case RIGHT:
+            case Direction.RIGHT:
                 this.position.x += 1;
                 break;
-            case DOWN:
+            case Direction.DOWN:
                 this.position.y += 1;
                 break;
-            case LEFT:
+            case Direction.LEFT:
                 this.position.x -= 1;
                 break;
         }
@@ -186,6 +189,7 @@ class GlyphGrid extends EventEmitter {
     clear() {
         this.reset();
         this.clearGrid();
+        this.clearOutput();
         this.saveToWindow();
     }
 
@@ -277,6 +281,12 @@ class GlyphGrid extends EventEmitter {
         const preElement = document.createElement("pre");
         preElement.textContent = text;
         this.outputElement.appendChild(preElement);
+    }
+
+    clearOutput() {
+        while (this.outputElement.firstChild) {
+            this.outputElement.removeChild(this.outputElement.firstChild);
+        }
     }
 
     index(x, y) {

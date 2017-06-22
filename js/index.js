@@ -13,7 +13,7 @@ const setButtonState = running => {
     iconElement.classList.add(iconClass);
 };
 
-const grid = new GlyphGrid({gridElement, outputElement, dictionary: BASIC_DICTIONARY});
+const grid = new GlyphGrid({gridElement, outputElement});
 
 const updateButtonState = _ => setButtonState(grid.running);
 grid.addListener("start", updateButtonState);
