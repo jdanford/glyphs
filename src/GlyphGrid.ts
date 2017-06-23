@@ -1,17 +1,49 @@
-const getCellElement = event => {
-    const nodeName = event.target && event.target.nodeName;
-    switch (nodeName) {
-        case "TD":
-            return event.target;
-        case "I":
-            return event.target.parentNode;
-        default:
-            return null;
-    }
-};
+import {INITIAL_DIRECTION, INITIAL_STEP_INTERVAL, GRID_WIDTH, GRID_HEIGHT, ENCODING_CHARS, ICON_CLASS_BASE, ICON_CLASS_PREFIX, ACTIVE_CLASS, CHUNK_SEPARATOR, GROUP_SEPARATOR} from "./constants";
+import {Direction} from "./direction";
+import {Glyph} from "./glyphs";
+import {EventEmitter} from "./EventEmitter";
 
-class GlyphGrid extends EventEmitter {
-    constructor(options) {
+export interface GlyphGridOptions {
+    gridElement: HTMLElement;
+    outputElement: HTMLElement;
+    glyphs: Glyph[];
+}
+
+interface Point2D {
+    x: number;
+    y: number;
+}
+
+interface GlyphTable {
+    [alias: string]: Glyph;
+}
+
+interface StringTable {
+    [key: string]: string;
+}
+
+export class GlyphGrid extends EventEmitter {
+    private gridElement: HTMLElement;
+    private outputElement: HTMLElement;
+
+    private width: number;
+    private height: number;
+    private grid: HTMLElement[];
+    private activeCell?: HTMLElement;
+
+    private lastStepTime: number;
+    private stepInterval: number;
+
+    private dictionary: GlyphTable;
+    private charTable: StringTable;
+    private aliasTable: StringTable;
+
+    public direction: Direction;
+    public position: Point2D;
+    public stack: number[];
+    public running: boolean;
+
+    constructor(options: GlyphGridOptions) {
         super();
 
         this.gridElement = options.gridElement;
@@ -19,7 +51,7 @@ class GlyphGrid extends EventEmitter {
 
         this.initState();
         this.initGrid();
-        this.initDictionary(glyphs);
+        this.initDictionary(options.glyphs);
 
         window.onhashchange = _ => this.loadFromWindow();
         this.loadFromWindow();
@@ -44,14 +76,14 @@ class GlyphGrid extends EventEmitter {
         this.gridElement.addEventListener("click", event => {
             const cellElement = getCellElement(event);
             if (cellElement) {
-                const alias = prompt("Glyph:", "");
+                const alias = prompt("Glyph:", "") || "";
                 this.setGlyph(cellElement, alias);
                 this.saveToWindow();
             }
         });
     }
 
-    initDictionary(glyphs) {
+    initDictionary(glyphs: Glyph[]) {
         this.dictionary = {};
         this.charTable = {};
         this.aliasTable = {};
@@ -91,8 +123,8 @@ class GlyphGrid extends EventEmitter {
         }
     }
 
-    setGlyph(cellElement, alias) {
-        const iconElement = cellElement.childNodes[0];
+    setGlyph(cellElement: HTMLElement, alias: string) {
+        const iconElement = cellElement.childNodes[0] as HTMLElement;
         iconElement.className = ICON_CLASS_BASE;
 
         cellElement.dataset.alias = alias;
@@ -151,7 +183,7 @@ class GlyphGrid extends EventEmitter {
     start() {
         this.setRunning(true);
 
-        const callback = time => {
+        const callback = (time: number) => {
             if (!this.running) {
                 return;
             }
@@ -175,13 +207,14 @@ class GlyphGrid extends EventEmitter {
     reset() {
         this.initState();
         this.clearActiveCell();
+        this.clearOutput();
         this.emitEvent("reset");
     }
 
     clearActiveCell() {
         if (this.activeCell) {
             this.activeCell.classList.remove(ACTIVE_CLASS);
-            this.activeCell = null;
+            this.activeCell = undefined;
         }
     }
 
@@ -192,7 +225,7 @@ class GlyphGrid extends EventEmitter {
         this.saveToWindow();
     }
 
-    setRunning(running) {
+    setRunning(running: boolean) {
         if (this.running === running) {
             return;
         }
@@ -238,7 +271,7 @@ class GlyphGrid extends EventEmitter {
         return chunk.map(({index, string}) => index + CHUNK_SEPARATOR + string).join(GROUP_SEPARATOR);
     }
 
-    loadFromHash(hash) {
+    loadFromHash(hash: string) {
         this.clearGrid();
 
         const chunks = hash.split(GROUP_SEPARATOR);
@@ -253,9 +286,9 @@ class GlyphGrid extends EventEmitter {
         });
     }
 
-    loadFromChunk(index, string) {
-        for (let i = 0; i < string.length; i++) {
-            const char = string[i];
+    loadFromChunk(index: number, chunk: string) {
+        for (let i = 0; i < chunk.length; i++) {
+            const char = chunk[i];
             const alias = this.aliasTable[char];
             if (!alias) {
                 continue;
@@ -276,7 +309,7 @@ class GlyphGrid extends EventEmitter {
         this.loadFromHash(hash);
     }
 
-    print(text) {
+    print(text: string) {
         const preElement = document.createElement("pre");
         preElement.textContent = text;
         this.outputElement.appendChild(preElement);
@@ -293,16 +326,31 @@ class GlyphGrid extends EventEmitter {
         return this.grid[i];
     }
 
-    index(x, y) {
+    index(x: number, y: number) {
         return y * this.width + x;
     }
 
-    getStackItem(n) {
+    getStackItem(n: number) {
         const i = this.stack.length - n - 1;
         return this.stack[i];
     }
 
-    rotateDirection(offset) {
+    rotateDirection(offset: number) {
         this.direction = (this.direction + offset + 4) % 4;
     }
 }
+
+function getCellElement(event: Event): HTMLElement|null {
+    if (!(event.target && event.target instanceof HTMLElement)) {
+        return null;
+    }
+
+    switch (event.target.nodeName) {
+        case "TD":
+            return event.target;
+        case "I":
+            return event.target.parentNode as HTMLElement;
+        default:
+            return null;
+    }
+};

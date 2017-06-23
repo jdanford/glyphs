@@ -1,4 +1,9 @@
-const programs = [{
+interface Program {
+    name: string;
+    code: string;
+}
+
+export const programs = [{
     name: "Fibonacci",
     code: "0:qmrbupc-27:atnd",
 }, {

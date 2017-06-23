@@ -1,4 +1,14 @@
-const glyphs = [{
+import {Direction} from "./direction";
+import {GlyphGrid} from "./GlyphGrid";
+
+export interface Glyph {
+    alias: string;
+    icon: string;
+    doc: string;
+    effect(grid: GlyphGrid): void;
+}
+
+export const glyphs: Glyph[] = [{
     alias: "up",
     icon: "arrow-up",
     doc: "Points the cursor up",
@@ -148,6 +158,11 @@ const glyphs = [{
     doc: "Removes the first item from the stack and adds it to the second item",
     effect(grid) {
         const value = grid.stack.pop();
+
+        if (value === undefined) {
+            throw new Error("Stack is empty");
+        }
+
         grid.stack[grid.stack.length - 1] += value;
     }
 }, {
@@ -155,15 +170,16 @@ const glyphs = [{
     icon: "comment",
     doc: "Prints the first item on the stack",
     effect(grid) {
-        grid.print(grid.getStackItem(0));
+        const value = grid.getStackItem(0);
+        grid.print(value.toString());
     }
 }, {
     alias: "eye",
     icon: "eye",
     doc: "Reads a number from the user and pushes it onto the stack",
     effect(grid) {
-        const string = prompt("Enter a number:", "");
-        const value = parseInt(string);
+        const input = prompt("Enter a number:", "");
+        const value = input ? parseInt(input) : 0;
         grid.stack.push(value);
     }
 }, {
