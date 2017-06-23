@@ -1,7 +1,8 @@
+/// <reference path="EventEmitter.d.ts" />
+
 import {INITIAL_DIRECTION, INITIAL_STEP_INTERVAL, GRID_WIDTH, GRID_HEIGHT, ENCODING_CHARS, ICON_CLASS_BASE, ICON_CLASS_PREFIX, ACTIVE_CLASS, CHUNK_SEPARATOR, GROUP_SEPARATOR} from "./constants";
 import {Direction} from "./direction";
 import {Glyph} from "./glyphs";
-import {EventEmitter} from "./EventEmitter";
 
 export interface GlyphGridOptions {
     gridElement: HTMLElement;
