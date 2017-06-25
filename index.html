@@ -9,12 +9,12 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato">
   <script src="lib/system.js"></script>
   <script src="lib/EventEmitter.min.js"></script>
-  <script src="dist/bundle.js"></script>
+  <script src="index.js"></script>
   <script>System.import("index")</script>
 </head>
-<body>
-  <div id="container">
-    <div id="controls">
+<body class="modal-openn">
+  <div class="container">
+    <div class="controls">
       <button id="start-button">
         <i class="fa fa-play"></i>
       </button>
@@ -34,6 +34,15 @@
     </div>
     <table id="grid"></table>
     <div id="output"></div>
+  </div>
+  <div class="modal-container">
+    <div class="backdrop"></div>
+    <div class="modal" id="help-modal">
+      <div class="close-button">
+        <i class="fa fa-close"></i>
+      </div>
+      <dl id="help-items"></dl>
+    </div>
   </div>
 </body>
 </html>

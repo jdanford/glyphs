@@ -4,3 +4,7 @@ export enum Direction {
     DOWN,
     LEFT,
 }
+
+export function rotate(direction: Direction, offset: number): Direction {
+    return (direction + offset + 4) % 4;
+}

@@ -1,7 +1,7 @@
 /// <reference path="EventEmitter.d.ts" />
 
 import {INITIAL_DIRECTION, INITIAL_STEP_INTERVAL, GRID_WIDTH, GRID_HEIGHT, ENCODING_CHARS, ICON_CLASS_BASE, ICON_CLASS_PREFIX, ACTIVE_CLASS, CHUNK_SEPARATOR, GROUP_SEPARATOR} from "./constants";
-import {Direction} from "./direction";
+import {Direction, rotate} from "./direction";
 import {Glyph} from "./glyphs";
 
 export interface GlyphGridOptions {
@@ -236,7 +236,7 @@ export class GlyphGrid extends EventEmitter {
         this.emitEvent(eventType);
     }
 
-    getHash() {
+    getHash(): string {
         let chunk = [];
         let currentChunk = null;
 
@@ -322,22 +322,22 @@ export class GlyphGrid extends EventEmitter {
         }
     }
 
-    getCurrentCell() {
+    getCurrentCell(): HTMLElement {
         const i = this.index(this.position.x, this.position.y);
         return this.grid[i];
     }
 
-    index(x: number, y: number) {
+    index(x: number, y: number): number {
         return y * this.width + x;
     }
 
-    getStackItem(n: number) {
+    getStackItem(n: number): number {
         const i = this.stack.length - n - 1;
         return this.stack[i];
     }
 
     rotateDirection(offset: number) {
-        this.direction = (this.direction + offset + 4) % 4;
+        this.direction = rotate(this.direction, offset);
     }
 }
 

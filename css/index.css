@@ -1,6 +1,7 @@
 :root {
     --font-size: 16px;
-    --icon-size: 20px;
+    --icon-size: var(--font-size);
+    --glyph-size: 20px;
     --margin-size: 10px;
     --border-width: 1px;
 
@@ -8,6 +9,18 @@
     --background-color: #fafafa;
     --foreground-color: #222;
     --border-color: #aaa;
+    --inset-shadow-color: #999;
+
+    --neutral-color-red: #822020;
+    --neutral-color-green: #207d20;
+    --neutral-color-blue: #3964a5;
+    --neutral-color-purple: #6c1688;
+}
+
+i.fa {
+    font-size: var(--icon-size);
+    width: var(--icon-size);
+    height: var(--icon-size);
 }
 
 .dark-theme {
@@ -15,6 +28,7 @@
     --background-color: #222;
     --foreground-color: #ddd;
     --border-color: #444;
+    --inset-shadow-color: #000;
 }
 
 html {
@@ -25,22 +39,28 @@ html {
     box-sizing: inherit;
 }
 
+*:focus {
+    outline: none;
+}
+
 body {
+    width: 100%;
+    height: 100%;
     font-family: 'Lato', sans-serif;
     font-size: var(--font-size);
     color: var(--foreground-color);
     background: var(--body-color);
 }
 
-#container {
+.container {
     padding: var(--margin-size);
 }
 
-#controls label {
+.controls label {
     margin-left: var(--margin-size);
 }
 
-#controls button {
+.controls button {
     width: 40px;
     padding: 2px 5px;
     border: var(--border-width) solid var(--border-color);
@@ -48,20 +68,38 @@ body {
     color: var(--foreground-color);
 }
 
-#controls #start-button {
-    border-color: #207d20;
+.controls button {
+    width: 40px;
+    padding: 2px 5px;
+    border: var(--border-width) solid var(--border-color);
+    background: var(--background-color);
+    color: var(--foreground-color);
 }
 
-#controls #step-button {
-    border-color: #3964a5;
+.controls button:active {
+    --offset-size: 1px;
+
+    box-shadow: inset var(--offset-size) var(--offset-size) 0 var(--inset-shadow-color);
 }
 
-#controls #stop-button {
-    border-color: #6c1688;
+.controls button:active i.fa {
+    transform: translate(var(--offset-size), var(--offset-size));
 }
 
-#controls #clear-button {
-    border-color: #822020;
+#start-button {
+    border-color: var(--neutral-color-green);
+}
+
+#step-button {
+    border-color: var(--neutral-color-blue);
+}
+
+#stop-button {
+    border-color: var(--neutral-color-purple);
+}
+
+#clear-button {
+    border-color: var(--neutral-color-red);
 }
 
 #grid {
@@ -82,8 +120,8 @@ body {
 }
 
 #grid td i {
-    width: var(--icon-size);
-    height: var(--icon-size);
+    width: var(--glyph-size);
+    height: var(--glyph-size);
     margin: 1px 1px -1px;
     text-align: center;
     vertical-align: middle;
@@ -94,9 +132,53 @@ body {
     padding: var(--margin-size);
     border: var(--border-width) solid var(--border-color);
     background: var(--background-color);
-    color: var(--foreground-color);
 }
 
 #output pre {
     margin: 0;
+}
+
+.modal-container {
+    display: none;
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.8);
+}
+
+body.modal-open .modal-container {
+    display: block;
+}
+
+.modal {
+    --icon-size: 14px;
+
+    position: relative;
+    width: 600px;
+    margin: 44px auto;
+    padding: var(--margin-size);
+    border: var(--border-width) solid var(--border-color);
+    background: var(--background-color);
+}
+
+.modal .close-button {
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding: 3px;
+    text-align: center;
+    line-height: 0;
+    cursor: pointer;
+}
+
+.modal .close-button:active {
+    color: var(--neutral-color-red);
+}
+
+.close-button i.fa {
+    line-height: 1;
 }

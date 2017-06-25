@@ -1,9 +1,9 @@
-interface Program {
+export interface Program {
     name: string;
     code: string;
 }
 
-export const programs = [{
+export const programs: Program[] = [{
     name: "Fibonacci",
     code: "0:qmrbupc-27:atnd",
 }, {
