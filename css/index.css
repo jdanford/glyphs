@@ -52,6 +52,18 @@ body {
     background: var(--body-color);
 }
 
+p {
+    margin: 0.8em 0;
+}
+
+h3 {
+    margin: 1em 0 0.5em;
+}
+
+a, a:visited {
+    color: var(--neutral-color-blue);
+}
+
 .container {
     padding: var(--margin-size);
 }
@@ -152,8 +164,6 @@ body.modal-open #modal-container {
 }
 
 .modal {
-    --icon-size: 14px;
-
     position: relative;
     width: 600px;
     margin: 44px auto;
@@ -178,4 +188,34 @@ body.modal-open #modal-container {
 
 .close-button i.fa {
     line-height: 1;
+}
+
+.programs {
+    margin: var(--margin-size) 0;
+    padding-left: 1.5em;
+}
+
+.glyphs {
+    margin: 0;
+}
+
+.glyphs .group {
+    --inner-margin-size: calc(var(--margin-size) / 2);
+
+    padding: var(--inner-margin-size) 0;
+}
+
+.glyphs .group:not(:first-child) {
+    border-top: 1px solid var(--border-color);
+}
+
+.glyphs dt {
+    --icon-size: 24px;
+
+    float: left;
+    padding: var(--inner-margin-size);
+}
+
+.glyphs dd {
+    padding-right: var(--inner-margin-size);
 }
