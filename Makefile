@@ -10,5 +10,5 @@ typescript: tsconfig.json $(shell find src -type f)
 clean:
 	rm -rf dist
 
-serve: build dist/bundle.js
-	hs -p 9000
+serve: build dist/index.js
+	hs
