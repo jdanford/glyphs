@@ -1,19 +1,19 @@
 /// <reference path="EventEmitter.d.ts" />
 
-import {INITIAL_DIRECTION, INITIAL_STEP_INTERVAL, GRID_WIDTH, GRID_HEIGHT, ENCODING_CHARS, ICON_CLASS_BASE, ICON_CLASS_PREFIX, ACTIVE_CLASS, CHUNK_SEPARATOR, GROUP_SEPARATOR} from "./constants";
-import {Direction, rotate} from "./direction";
+import {ClassName} from "./ClassName";
+import {IconClassName} from "./IconClassName";
+import {Point, moveInDirection} from "./Point";
+import {Direction, rotate} from "./Direction";
 import {Glyph} from "./glyphs";
 
-export interface GlyphGridOptions {
-    gridElement: HTMLElement;
-    outputElement: HTMLElement;
-    glyphs: Glyph[];
-}
+const ENCODING_CHARS: string = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+const CHUNK_SEPARATOR: string = ":";
+const GROUP_SEPARATOR: string = "-";
 
-interface Point2D {
-    x: number;
-    y: number;
-}
+const INITIAL_DIRECTION: Direction = Direction.Right;
+const INITIAL_STEP_INTERVAL: number = 200;
+const GRID_WIDTH: number = 24;
+const GRID_HEIGHT: number = 24;
 
 interface GlyphTable {
     [alias: string]: Glyph;
@@ -21,6 +21,12 @@ interface GlyphTable {
 
 interface StringTable {
     [key: string]: string;
+}
+
+export interface GlyphGridOptions {
+    gridElement: HTMLElement;
+    outputElement: HTMLElement;
+    glyphs: Glyph[];
 }
 
 export class GlyphGrid extends EventEmitter {
@@ -40,7 +46,7 @@ export class GlyphGrid extends EventEmitter {
     private aliasTable: StringTable;
 
     public direction: Direction;
-    public position: Point2D;
+    public position: Point;
     public stack: number[];
     public running: boolean;
 
@@ -58,7 +64,7 @@ export class GlyphGrid extends EventEmitter {
         this.loadFromWindow();
     }
 
-    initState() {
+    initState(): void {
         this.direction = INITIAL_DIRECTION;
         this.position = {x: 0, y: 0};
         this.stack = [];
@@ -68,7 +74,7 @@ export class GlyphGrid extends EventEmitter {
         this.stepInterval = INITIAL_STEP_INTERVAL;
     }
 
-    initGrid() {
+    initGrid(): void {
         this.width = GRID_WIDTH;
         this.height = GRID_HEIGHT;
         this.grid = new Array(this.width * this.height);
@@ -84,7 +90,7 @@ export class GlyphGrid extends EventEmitter {
         });
     }
 
-    initDictionary(glyphs: Glyph[]) {
+    initDictionary(glyphs: Glyph[]): void {
         this.dictionary = {};
         this.charTable = {};
         this.aliasTable = {};
@@ -99,7 +105,7 @@ export class GlyphGrid extends EventEmitter {
         });
     }
 
-    fillGrid() {
+    fillGrid(): void {
         for (let y = 0; y < this.height; y++) {
             const rowElement = document.createElement("tr");
             this.gridElement.appendChild(rowElement);
@@ -117,34 +123,34 @@ export class GlyphGrid extends EventEmitter {
         }
     }
 
-    clearGrid() {
+    clearGrid(): void {
         for (let i = 0; i < this.width * this.height; i++) {
             const cellElement = this.grid[i];
             this.setGlyph(cellElement, "");
         }
     }
 
-    setGlyph(cellElement: HTMLElement, alias: string) {
+    setGlyph(cellElement: HTMLElement, alias: string): void {
         const iconElement = cellElement.childNodes[0] as HTMLElement;
-        iconElement.className = ICON_CLASS_BASE;
+        iconElement.className = IconClassName.Base;
 
         cellElement.dataset.alias = alias;
 
         if (alias) {
             const glyph = this.dictionary[alias];
             if (glyph) {
-                const className = ICON_CLASS_PREFIX + glyph.icon;
+                const className = IconClassName.Prefix + glyph.icon;
                 iconElement.classList.add(className);
             }
         }
     }
 
-    step() {
+    step(): void {
         const i = this.index(this.position.x, this.position.y);
 
         this.clearActiveCell();
         this.activeCell = this.getCurrentCell();
-        this.activeCell.classList.add(ACTIVE_CLASS);
+        this.activeCell.classList.add(ClassName.Active);
 
         const alias = this.activeCell.dataset.alias;
         if (alias) {
@@ -152,20 +158,7 @@ export class GlyphGrid extends EventEmitter {
             glyph.effect(this);
         }
 
-        switch (this.direction) {
-            case Direction.UP:
-                this.position.y -= 1;
-                break;
-            case Direction.RIGHT:
-                this.position.x += 1;
-                break;
-            case Direction.DOWN:
-                this.position.y += 1;
-                break;
-            case Direction.LEFT:
-                this.position.x -= 1;
-                break;
-        }
+        moveInDirection(this.position, this.direction);
 
         this.position.x = (this.position.x + this.width) % this.width;
         this.position.y = (this.position.y + this.height) % this.height;
@@ -173,7 +166,7 @@ export class GlyphGrid extends EventEmitter {
         this.emitEvent("step");
     }
 
-    toggle() {
+    toggle(): void {
         if (this.running) {
             this.pause();
         } else {
@@ -181,7 +174,7 @@ export class GlyphGrid extends EventEmitter {
         }
     }
 
-    start() {
+    start(): void {
         this.setRunning(true);
 
         const callback = (time: number) => {
@@ -201,29 +194,28 @@ export class GlyphGrid extends EventEmitter {
         requestAnimationFrame(callback);
     }
 
-    pause() {
+    pause(): void {
         this.setRunning(false);
     }
 
-    reset() {
+    reset(): void {
         this.initState();
         this.clearActiveCell();
         this.clearOutput();
         this.emitEvent("reset");
     }
 
-    clearActiveCell() {
+    clearActiveCell(): void {
         if (this.activeCell) {
-            this.activeCell.classList.remove(ACTIVE_CLASS);
+            this.activeCell.classList.remove(ClassName.Active);
             this.activeCell = undefined;
         }
     }
 
-    clear() {
+    clear(): void {
         this.reset();
         this.clearGrid();
         this.clearOutput();
-        this.saveToWindow();
     }
 
     setRunning(running: boolean) {
@@ -272,8 +264,8 @@ export class GlyphGrid extends EventEmitter {
         return chunk.map(({index, string}) => index + CHUNK_SEPARATOR + string).join(GROUP_SEPARATOR);
     }
 
-    loadFromHash(hash: string) {
-        this.clearGrid();
+    loadFromHash(hash: string): void {
+        this.clear();
 
         const chunks = hash.split(GROUP_SEPARATOR);
         if (!chunks[0]) {
@@ -287,7 +279,7 @@ export class GlyphGrid extends EventEmitter {
         });
     }
 
-    loadFromChunk(index: number, chunk: string) {
+    loadFromChunk(index: number, chunk: string): void {
         for (let i = 0; i < chunk.length; i++) {
             const char = chunk[i];
             const alias = this.aliasTable[char];
@@ -300,23 +292,23 @@ export class GlyphGrid extends EventEmitter {
         }
     }
 
-    saveToWindow() {
+    saveToWindow(): void {
         const hash = this.getHash();
         window.location.hash = "#" + hash;
     }
 
-    loadFromWindow() {
+    loadFromWindow(): void {
         const hash = window.location.hash.slice(1);
         this.loadFromHash(hash);
     }
 
-    print(text: string) {
+    print(text: string): void {
         const preElement = document.createElement("pre");
         preElement.textContent = text;
         this.outputElement.appendChild(preElement);
     }
 
-    clearOutput() {
+    clearOutput(): void {
         while (this.outputElement.firstChild) {
             this.outputElement.removeChild(this.outputElement.firstChild);
         }
@@ -336,7 +328,7 @@ export class GlyphGrid extends EventEmitter {
         return this.stack[i];
     }
 
-    rotateDirection(offset: number) {
+    rotateDirection(offset: number): void {
         this.direction = rotate(this.direction, offset);
     }
 }

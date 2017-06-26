@@ -1,8 +1,8 @@
 export enum Direction {
-    UP = 0,
-    RIGHT,
-    DOWN,
-    LEFT,
+    Up = 0,
+    Right,
+    Down,
+    Left,
 }
 
 export function rotate(direction: Direction, offset: number): Direction {

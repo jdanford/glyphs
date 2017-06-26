@@ -1,6 +1,10 @@
+import {getElementById} from "./utils";
+import {ClassName} from "./ClassName";
+import {IconClassName} from "./IconClassName";
 import {glyphs} from "./glyphs";
 import {GlyphGrid} from "./GlyphGrid";
-import {ICON_CLASS_BASE, ICON_CLASS_PAUSE, ICON_CLASS_PLAY, DARK_THEME_CLASS} from "./constants";
+import {ModalWindow} from "./ModalWindow";
+import {HelpWindow} from "./HelpWindow";
 
 export class App {
     private gridElement: HTMLElement;
@@ -9,8 +13,11 @@ export class App {
     private stepButton: HTMLElement;
     private stopButton: HTMLElement;
     private clearButton: HTMLElement;
+    private helpButton: HTMLElement;
     private darkThemeCheckbox: HTMLInputElement;
+
     private grid: GlyphGrid;
+    private helpWindow: HelpWindow;
 
     constructor() {
         this.gridElement = getElementById("grid");
@@ -19,18 +26,28 @@ export class App {
         this.stepButton = getElementById("step-button");
         this.stopButton = getElementById("stop-button");
         this.clearButton = getElementById("clear-button");
+        this.helpButton = getElementById("help-button");
         this.darkThemeCheckbox = getElementById("dark-theme-checkbox") as HTMLInputElement;
 
-        const gridOptions = {gridElement: this.gridElement, outputElement: this.outputElement, glyphs};
-        this.grid = new GlyphGrid(gridOptions);
-
+        this.initChildren();
         this.initListeners();
         this.updateOutputSize();
         this.setButtonState(false);
         this.setDarkTheme(false);
     }
 
-    initListeners() {
+    private initChildren(): void {
+        const gridOptions = {glyphs, gridElement: this.gridElement, outputElement: this.outputElement};
+        this.grid = new GlyphGrid(gridOptions);
+
+        const modalContainer = getElementById("modal-container");
+        ModalWindow.setModalContainer(modalContainer);
+
+        const helpModal = getElementById("help-modal");
+        this.helpWindow = new HelpWindow({modalElement: helpModal});
+    }
+
+    private initListeners(): void {
         this.grid.addListener("start", () => this.updateButtonState());
         this.grid.addListener("pause", () => this.updateButtonState());
         this.grid.addListener("reset", () => this.updateButtonState());
@@ -51,7 +68,12 @@ export class App {
             const message = "Clear grid?";
             if (confirm(message)) {
                 this.grid.clear();
+                this.grid.saveToWindow();
             }
+        });
+
+        this.helpButton.addEventListener("click", _ => {
+            this.helpWindow.show();
         });
 
         this.darkThemeCheckbox.addEventListener("change", _ => {
@@ -59,36 +81,27 @@ export class App {
         });
     }
 
-    updateOutputSize() {
+    private updateOutputSize(): void {
         const gridWidth = this.gridElement.offsetWidth;
         this.outputElement.style.setProperty("width", `${gridWidth}px`);
     }
 
-    setButtonState(running: boolean) {
-        const iconElement = this.startButton.getElementsByClassName(ICON_CLASS_BASE)[0];
-        const iconClass = running ? ICON_CLASS_PAUSE : ICON_CLASS_PLAY;
-        iconElement.className = ICON_CLASS_BASE;
-        iconElement.classList.add(iconClass);
+    private setButtonState(running: boolean): void {
+        const iconElement = this.startButton.getElementsByClassName(IconClassName.Base)[0];
+        const iconClassName = running ? IconClassName.Pause : IconClassName.Play;
+        iconElement.className = IconClassName.Base;
+        iconElement.classList.add(iconClassName);
     }
 
-    updateButtonState() {
+    private updateButtonState(): void {
         this.setButtonState(this.grid.running);
     }
 
-    get darkThemeEnabled(): boolean {
+    private get darkThemeEnabled(): boolean {
         return this.darkThemeCheckbox.checked;
     }
 
-    setDarkTheme(useDarkTheme: boolean) {
-        document.body.classList.toggle(DARK_THEME_CLASS, useDarkTheme);
+    private setDarkTheme(enabled: boolean): void {
+        document.body.classList.toggle(ClassName.DarkTheme, enabled);
     }
-}
-
-function getElementById(id: string): HTMLElement {
-    const element = document.getElementById(id);
-    if (element === null) {
-        throw new Error(`Element with id='${id}' does not exist`);
-    }
-
-    return element;
 }

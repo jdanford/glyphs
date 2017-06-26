@@ -1,14 +1,14 @@
-.PHONY: all build typescript clean serve
+.PHONY: all build clean serve
 
 all: build
 
-build: typescript
+build: index.js
 
-typescript: tsconfig.json $(shell find src -type f)
+index.js: tsconfig.json $(shell find src -type f)
 	tsc
 
 clean:
 	rm -rf dist
 
-serve: build dist/index.js
+serve: build index.js
 	hs

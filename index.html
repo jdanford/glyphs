@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>glyphs</title>
+  <title>Glyphs</title>
   <link rel="stylesheet" href="css/normalize.css" />
   <link rel="stylesheet" href="css/index.css" />
   <link rel="stylesheet" href="css/font-awesome.min.css" />
@@ -12,7 +12,7 @@
   <script src="index.js"></script>
   <script>System.import("index")</script>
 </head>
-<body class="modal-openn">
+<body>
   <div class="container">
     <div class="controls">
       <button id="start-button">
@@ -27,6 +27,9 @@
       <button id="clear-button">
         <i class="fa fa-trash"></i>
       </button>
+      <button id="help-button">
+        <i class="fa fa-question-circle"></i>
+      </button>
       <label>
         <input id="dark-theme-checkbox" type="checkbox">
         <span>Dark theme</span>
@@ -35,13 +38,20 @@
     <table id="grid"></table>
     <div id="output"></div>
   </div>
-  <div class="modal-container">
-    <div class="backdrop"></div>
+  <div id="modal-container">
     <div class="modal" id="help-modal">
       <div class="close-button">
         <i class="fa fa-close"></i>
       </div>
-      <dl id="help-items"></dl>
+      <h3>Initial state</h3>
+      <p>
+        A program begins with an empty stack and a cursor that starts at the top left glyph and moves to the right.
+        Control flow is determined by glyphs that change the direction of the cursor.
+      </p>
+      <h3>Example programs</h3>
+      <ul class="programs"></ul>
+      <h3>Glyph definitions</h3>
+      <dl class="glyphs"></dl>
     </div>
   </div>
 </body>
