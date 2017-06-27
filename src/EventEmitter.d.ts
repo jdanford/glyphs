@@ -1,3 +1,5 @@
+// Adapted from https://github.com/Olical/EventEmitter/blob/master/EventEmitter.d.ts
+
 type EventKey = string|RegExp;
 
 interface EventMap {

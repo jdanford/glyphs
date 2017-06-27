@@ -1,3 +1,5 @@
+// From https://github.com/nfriend/ts-keycode-enum/blob/master/Key.enum.ts
+
 export enum KeyCode {
     Backspace = 8,
     Tab = 9,
