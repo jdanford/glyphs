@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>Glyphs</title>
+  <link rel="shortcut icon" href="favicon.ico" />
   <link rel="stylesheet" href="css/normalize.css" />
   <link rel="stylesheet" href="css/index.css" />
   <link rel="stylesheet" href="css/font-awesome.min.css" />
@@ -43,14 +44,20 @@
       <div class="close-button">
         <i class="fa fa-close"></i>
       </div>
-      <h3>Initial state</h3>
+      <h3>Basics</h3>
       <p>
-        A program begins with an empty stack and a cursor that starts at the top left glyph and moves to the right.
-        Control flow is determined by glyphs that change the direction of the cursor.
+        This is an editor for two-dimensional programs made of glyphs, each of which has an alias (plain-text name) and
+        an effect. You can change a glyph by clicking on it and entering a new alias, or clear it by leaving the input
+        empty. The current program is stored in the hash fragment of the URL, allowing for easy sharing and undo/redo.
       </p>
-      <h3>Example programs</h3>
+      <p>
+        Program execution is controlled by a cursor, which starts at the top left cell and moves to the right,
+        executing each glyph it passes over. Some glyphs change the direction of the cursor, facilitating control flow,
+        while others modify the stack or perform I/O.
+      </p>
+      <h3>Examples</h3>
       <ul class="programs"></ul>
-      <h3>Glyph definitions</h3>
+      <h3>Glyphs</h3>
       <dl class="glyphs"></dl>
     </div>
   </div>

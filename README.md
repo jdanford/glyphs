@@ -1,6 +1,6 @@
 # Glyphs
 
-A two-dimensional pictorial language in the browser, sort of like [Befunge](https://esolangs.org/wiki/Befunge) but prettier.
+A two-dimensional pictorial language in the browser, sort of like [Befunge](https://esolangs.org/wiki/Befunge) but prettier. It has minimal external dependencies but *does* require a browser that supports [CSS variables](https://developer.mozilla.org/en-US/docs/Web/CSS/Using_CSS_variables).
 
 ## Development
 
@@ -13,20 +13,22 @@ Either serve the root directory yourself, or if you have [http-server] installed
 
 ## Usage
 
-The current program is stored in the hash fragment of the URL, allowing for easy sharing and undo/redo. There's a help button with a question mark on it that has example programs and more documentation.
+In the app, the with the question mark on it has a help window with documentation and examples.
 
 ## Future improvements
 
+- Expand documentation and examples
 - Use good UI design (no `window.prompt`)
 - Add more glyphs
 - Expose better interface for glyph `effect` functions
+- Add speed controls
 - Make CSS more modular
 - Move program encoding/decoding to separate module
 - Move hash fragment handling out of GlyphGrid
 
 ## Attributions 💖
 
-- [Font Awesome by Dave Gandy](http://fontawesome.io/)
+- [Font Awesome](http://fontawesome.io/) by Dave Gandy
 - [Olical/EventEmitter](https://github.com/Olical/EventEmitter)
 - [nfriend/ts-keycode-enum](https://github.com/nfriend/ts-keycode-enum)
 
