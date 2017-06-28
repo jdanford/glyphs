@@ -42,6 +42,7 @@ export class ModalWindow {
     }
 
     private initListeners(): void {
+        this.modalElement.addEventListener("click", event => event.stopPropagation());
         this.closeButton.addEventListener("click", _ => this.hide());
     }
 
