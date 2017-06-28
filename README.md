@@ -13,7 +13,7 @@ Either serve the root directory yourself, or if you have [http-server] installed
 
 ## Usage
 
-In the app, the with the question mark on it has a help window with documentation and examples.
+In the app, the button with the question mark on it has a help window with documentation and examples.
 
 ## Future improvements
 
