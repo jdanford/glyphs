@@ -3,12 +3,14 @@ import {ClassName} from "./ClassName";
 import {IconClassName} from "./IconClassName";
 import {glyphs} from "./glyphs";
 import {GlyphGrid} from "./GlyphGrid";
+import {StepSpeed} from "./StepSpeed";
 import {ModalWindow} from "./ModalWindow";
 import {HelpWindow} from "./HelpWindow";
 
 export class App {
     private gridElement: HTMLElement;
     private outputElement: HTMLElement;
+    private fastButton: HTMLElement;
     private startButton: HTMLElement;
     private stepButton: HTMLElement;
     private stopButton: HTMLElement;
@@ -22,6 +24,7 @@ export class App {
     constructor() {
         this.gridElement = getElementById("grid");
         this.outputElement = getElementById("output");
+        this.fastButton = getElementById("fast-button");
         this.startButton = getElementById("start-button");
         this.stepButton = getElementById("step-button");
         this.stopButton = getElementById("stop-button");
@@ -52,24 +55,34 @@ export class App {
         this.grid.addListener("pause", () => this.updateButtonState());
         this.grid.addListener("reset", () => this.updateButtonState());
 
-        this.startButton.addEventListener("click", _ => {
-            this.grid.toggle();
-        });
-
-        this.stepButton.addEventListener("click", _ => {
-            this.grid.step();
-        });
-
-        this.stopButton.addEventListener("click", _ => {
-            this.grid.reset();
-        });
-
         this.clearButton.addEventListener("click", _ => {
             const message = "Clear grid?";
             if (confirm(message)) {
                 this.grid.clear();
                 this.grid.saveToWindow();
             }
+        });
+
+        this.stopButton.addEventListener("click", _ => {
+            this.grid.reset();
+        });
+
+        this.stepButton.addEventListener("click", _ => {
+            if (this.grid.running) {
+                this.grid.pause();
+            } else {
+                this.grid.step();
+            }
+        });
+
+        this.startButton.addEventListener("click", _ => {
+            this.grid.stepSpeed = StepSpeed.Slow;
+            this.grid.start();
+        });
+
+        this.fastButton.addEventListener("click", _ => {
+            this.grid.stepSpeed = StepSpeed.Fast;
+            this.grid.start();
         });
 
         this.helpButton.addEventListener("click", _ => {
@@ -87,10 +100,16 @@ export class App {
     }
 
     private setButtonState(running: boolean): void {
-        const iconElement = this.startButton.getElementsByClassName(IconClassName.Base)[0];
-        const iconClassName = running ? IconClassName.Pause : IconClassName.Play;
+        const iconElement = this.stepButton.getElementsByClassName(IconClassName.Base)[0];
+        const iconClassName = running ? IconClassName.Pause : IconClassName.Step;
         iconElement.className = IconClassName.Base;
         iconElement.classList.add(iconClassName);
+
+        let runningSlow = running && this.grid.stepSpeed === StepSpeed.Slow;
+        let runningFast = running && this.grid.stepSpeed === StepSpeed.Fast;
+
+        this.startButton.classList.toggle("active", runningSlow);
+        this.fastButton.classList.toggle("active", runningFast);
     }
 
     private updateButtonState(): void {

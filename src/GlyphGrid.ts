@@ -5,13 +5,13 @@ import {IconClassName} from "./IconClassName";
 import {Point, moveInDirection} from "./Point";
 import {Direction, rotate} from "./Direction";
 import {Glyph} from "./glyphs";
+import {StepSpeed} from "./StepSpeed";
 
 const ENCODING_CHARS: string = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 const CHUNK_SEPARATOR: string = ":";
 const GROUP_SEPARATOR: string = "-";
 
 const INITIAL_DIRECTION: Direction = Direction.Right;
-const INITIAL_STEP_INTERVAL: number = 200;
 const GRID_WIDTH: number = 24;
 const GRID_HEIGHT: number = 24;
 
@@ -32,15 +32,11 @@ export interface GlyphGridOptions {
 export class GlyphGrid extends EventEmitter {
     private gridElement: HTMLElement;
     private outputElement: HTMLElement;
-
     private width: number;
     private height: number;
     private grid: HTMLElement[];
     private activeCell?: HTMLElement;
-
     private lastStepTime: number;
-    private stepInterval: number;
-
     private dictionary: GlyphTable;
     private charTable: StringTable;
     private aliasTable: StringTable;
@@ -49,6 +45,7 @@ export class GlyphGrid extends EventEmitter {
     public position: Point;
     public stack: number[];
     public running: boolean;
+    public stepSpeed: StepSpeed;
 
     constructor(options: GlyphGridOptions) {
         super();
@@ -71,7 +68,7 @@ export class GlyphGrid extends EventEmitter {
 
         this.running = false;
         this.lastStepTime = 0;
-        this.stepInterval = INITIAL_STEP_INTERVAL;
+        this.stepSpeed = StepSpeed.Slow;
     }
 
     initGrid(): void {
@@ -166,14 +163,6 @@ export class GlyphGrid extends EventEmitter {
         this.emitEvent("step");
     }
 
-    toggle(): void {
-        if (this.running) {
-            this.pause();
-        } else {
-            this.start();
-        }
-    }
-
     start(): void {
         this.setRunning(true);
 
@@ -184,7 +173,7 @@ export class GlyphGrid extends EventEmitter {
 
             requestAnimationFrame(callback);
 
-            const nextStepTime = this.lastStepTime + this.stepInterval;
+            const nextStepTime = this.lastStepTime + this.stepSpeed;
             if (time >= nextStepTime) {
                 this.lastStepTime = time;
                 this.step();

@@ -12,6 +12,7 @@
     --inset-shadow-color: #999;
 
     --neutral-color-red: #822020;
+    --neutral-color-yellow: #91921a;
     --neutral-color-green: #207d20;
     --neutral-color-blue: #3964a5;
     --neutral-color-purple: #6c1688;
@@ -88,14 +89,18 @@ a, a:visited {
     color: var(--foreground-color);
 }
 
-.controls button:active {
+.controls button:active, .controls button.active {
     --offset-size: 1px;
 
     box-shadow: inset var(--offset-size) var(--offset-size) 0 var(--inset-shadow-color);
 }
 
-.controls button:active i.fa {
+.controls button:active i.fa, .controls button.active i.fa {
     transform: translate(var(--offset-size), var(--offset-size));
+}
+
+#fast-button {
+    border-color: var(--neutral-color-yellow);
 }
 
 #start-button {

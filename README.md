@@ -18,7 +18,6 @@ Click on a glyph (or empty cell) to change it. Click the question mark button to
 ## Future improvements
 
 ### External
-- Add "run fast" button à la TIS-100
 - Use good UI design (no `window.prompt`)
 - Add more examples
 - Add more glyphs
