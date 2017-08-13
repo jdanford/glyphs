@@ -9,22 +9,26 @@ Prerequisites:
 - TypeScript >= 2.0
 - [http-server] (optional)
 
-Either serve the root directory yourself, or if you have [http-server] installed, run `make serve` and open the URL it gives you.
+If you have [http-server] installed, run `make serve` and open the URL it gives you, otherwise use your favorite HTTP server.
 
-## Usage
+## Usage (in app)
 
-In the app, the button with the question mark on it has a help window with documentation and examples.
+Click on a glyph (or empty cell) to change it. Click the question mark button to view documentation and examples.
 
 ## Future improvements
 
-- Expand documentation and examples
+### External
+- Add "run fast" button à la TIS-100
 - Use good UI design (no `window.prompt`)
+- Add more examples
 - Add more glyphs
-- Expose better interface for glyph `effect` functions
-- Add speed controls
-- Make CSS more modular
+- Make a better favicon
+
+### Internal
 - Move program encoding/decoding to separate module
 - Move hash fragment handling out of GlyphGrid
+- Expose better interface for glyph `effect` functions
+- Make CSS more modular
 
 ## Attributions 💖
 

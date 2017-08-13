@@ -219,3 +219,7 @@ body.modal-open #modal-container {
 .glyphs dd {
     padding-right: var(--inner-margin-size);
 }
+
+.glyphs .alias {
+    font-family: 'Roboto Mono', monospace;
+}

@@ -134,7 +134,7 @@ export class GlyphGrid extends EventEmitter {
         const iconElement = cellElement.childNodes[0] as HTMLElement;
         iconElement.className = IconClassName.Base;
 
-        cellElement.dataset.alias = alias;
+        cellElement.title = alias;
 
         if (alias) {
             const glyph = this.dictionary[alias];
@@ -152,7 +152,7 @@ export class GlyphGrid extends EventEmitter {
         this.activeCell = this.getCurrentCell();
         this.activeCell.classList.add(ClassName.Active);
 
-        const alias = this.activeCell.dataset.alias;
+        const alias = this.activeCell.title;
         if (alias) {
             const glyph = this.dictionary[alias];
             glyph.effect(this);
@@ -234,7 +234,7 @@ export class GlyphGrid extends EventEmitter {
 
         for (let i = 0; i < this.width * this.height; i++) {
             const cellElement = this.grid[i];
-            const alias = cellElement.dataset.alias;
+            const alias = cellElement.title;
 
             if (!alias) {
                 if (currentChunk) {
