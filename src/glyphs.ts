@@ -1,5 +1,5 @@
-import {Direction} from "./Direction";
-import {GlyphEditor} from "./GlyphEditor";
+import { Direction } from "./Direction";
+import { GlyphEditor } from "./GlyphEditor";
 
 export interface Glyph {
     alias: string;

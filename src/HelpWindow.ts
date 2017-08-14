@@ -1,8 +1,8 @@
-import {ClassName} from "./ClassName";
-import {ModalWindow, ModalWindowOptions} from "./ModalWindow";
-import {createIconElement, getChildByClassName} from "./utils";
-import {Glyph, glyphs} from "./glyphs";
-import {Program, programs} from "./programs";
+import { ClassName } from "./ClassName";
+import { ModalWindow, ModalWindowOptions } from "./ModalWindow";
+import { createIconElement, getChildByClassName } from "./utils";
+import { Glyph, glyphs } from "./glyphs";
+import { Program, programs } from "./programs";
 
 export class HelpWindow extends ModalWindow {
     private programList: HTMLElement;

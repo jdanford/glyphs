@@ -1,11 +1,14 @@
-import {getElementById} from "./utils";
-import {ClassName} from "./ClassName";
-import {IconClassName} from "./IconClassName";
-import {glyphs} from "./glyphs";
-import {GlyphEditor} from "./GlyphEditor";
-import {StepSpeed} from "./StepSpeed";
-import {ModalWindow} from "./ModalWindow";
-import {HelpWindow} from "./HelpWindow";
+import { getElementById } from "./utils";
+import { ClassName } from "./ClassName";
+import { IconClassName } from "./IconClassName";
+import { glyphs } from "./glyphs";
+import { GlyphEditor } from "./GlyphEditor";
+import { StepSpeed } from "./StepSpeed";
+import { ModalWindow } from "./ModalWindow";
+import { HelpWindow } from "./HelpWindow";
+
+const GRID_WIDTH: number = 24;
+const GRID_HEIGHT: number = 24;
 
 export class App {
     private gridElement: HTMLElement;
@@ -40,14 +43,14 @@ export class App {
     }
 
     private initChildren(): void {
-        const gridOptions = {glyphs, gridElement: this.gridElement, outputElement: this.outputElement};
+        const gridOptions = { glyphs, width: GRID_WIDTH, height: GRID_HEIGHT, gridElement: this.gridElement, outputElement: this.outputElement };
         this.editor = new GlyphEditor(gridOptions);
 
         const modalContainer = getElementById("modal-container");
         ModalWindow.setModalContainer(modalContainer);
 
         const helpModal = getElementById("help-modal");
-        this.helpWindow = new HelpWindow({modalElement: helpModal});
+        this.helpWindow = new HelpWindow({ modalElement: helpModal });
     }
 
     private initListeners(): void {

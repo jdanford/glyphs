@@ -1,4 +1,4 @@
-import {IconClassName} from "./IconClassName";
+import { IconClassName } from "./IconClassName";
 
 export function getElementById(id: string): HTMLElement {
     const element = document.getElementById(id);

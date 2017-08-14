@@ -13,4 +13,4 @@ clean:
 	rm $(OUTFILE)
 
 serve: build $(OUTFILE)
-	hs
+	@hs

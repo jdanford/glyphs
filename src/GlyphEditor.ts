@@ -1,41 +1,26 @@
-/// <reference path="EventEmitter.d.ts" />
-
-import {ClassName} from "./ClassName";
-import {IconClassName} from "./IconClassName";
-import {Glyph} from "./glyphs";
-import {StepSpeed} from "./StepSpeed";
-import {ProgramState} from "./ProgramState";
+import { ClassName } from "./ClassName";
+import { IconClassName } from "./IconClassName";
+import { Glyph } from "./glyphs";
+import { GlyphGrid, GlyphGridOptions } from "./GlyphGrid";
+import { StepSpeed } from "./StepSpeed";
+import { ProgramState } from "./ProgramState";
 
 const ENCODING_CHARS: string = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 const CHUNK_SEPARATOR: string = ":";
 const GROUP_SEPARATOR: string = "-";
 
-const GRID_WIDTH: number = 24;
-const GRID_HEIGHT: number = 24;
-
-interface GlyphTable {
-    [alias: string]: Glyph;
-}
-
 interface StringTable {
     [key: string]: string;
 }
 
-export interface GlyphEditorOptions {
-    gridElement: HTMLElement;
+export interface GlyphEditorOptions extends GlyphGridOptions {
     outputElement: HTMLElement;
-    glyphs: Glyph[];
 }
 
-export class GlyphEditor extends EventEmitter {
-    private gridElement: HTMLElement;
+export class GlyphEditor extends GlyphGrid {
     private outputElement: HTMLElement;
-    private width: number;
-    private height: number;
-    private grid: HTMLElement[];
     private activeCell?: HTMLElement;
     private lastStepTime: number;
-    private dictionary: GlyphTable;
     private charTable: StringTable;
     private aliasTable: StringTable;
 
@@ -44,14 +29,13 @@ export class GlyphEditor extends EventEmitter {
     public stepSpeed: StepSpeed;
 
     constructor(options: GlyphEditorOptions) {
-        super();
+        super(options);
 
         this.gridElement = options.gridElement;
         this.outputElement = options.outputElement;
 
         this.initState();
-        this.initGrid();
-        this.initDictionary(options.glyphs);
+        this.initTables(options.glyphs);
 
         window.onhashchange = _ => this.loadFromWindow();
         this.loadFromWindow();
@@ -64,74 +48,28 @@ export class GlyphEditor extends EventEmitter {
         this.lastStepTime = 0;
     }
 
-    initGrid(): void {
-        this.width = GRID_WIDTH;
-        this.height = GRID_HEIGHT;
-        this.grid = new Array(this.width * this.height);
-        this.fillGrid();
-
-        this.gridElement.addEventListener("click", event => {
-            const cellElement = getCellElement(event);
-            if (cellElement) {
-                const alias = prompt("Glyph:", "") || "";
-                this.setGlyph(cellElement, alias);
-                this.saveToWindow();
-            }
-        });
+    onCellClick(cellElement: HTMLElement, event: MouseEvent) {
+        const alias = prompt("Glyph:", "") || "";
+        this.setGlyph(cellElement, alias);
+        this.saveToWindow();
     }
 
-    initDictionary(glyphs: Glyph[]): void {
-        this.dictionary = {};
+    initTables(glyphs: Glyph[]): void {
         this.charTable = {};
         this.aliasTable = {};
 
         glyphs.forEach((glyph, i) => {
-            const {alias} = glyph;
-            this.dictionary[alias] = glyph;
-
+            const { alias } = glyph;
             const char = ENCODING_CHARS[i];
             this.charTable[alias] = char;
             this.aliasTable[char] = alias;
         });
     }
 
-    fillGrid(): void {
-        for (let y = 0; y < this.height; y++) {
-            const rowElement = document.createElement("tr");
-            this.gridElement.appendChild(rowElement);
-
-            for (let x = 0; x < this.width; x++) {
-                const cellElement = document.createElement("td");
-                const iconElement = document.createElement("i");
-                cellElement.appendChild(iconElement);
-                rowElement.appendChild(cellElement);
-
-                const i = this.index(x, y);
-                this.grid[i] = cellElement;
-                this.setGlyph(cellElement, "");
-            }
-        }
-    }
-
     clearGrid(): void {
         for (let i = 0; i < this.width * this.height; i++) {
-            const cellElement = this.grid[i];
+            const cellElement = this.gridCells[i];
             this.setGlyph(cellElement, "");
-        }
-    }
-
-    setGlyph(cellElement: HTMLElement, alias: string): void {
-        const iconElement = cellElement.childNodes[0] as HTMLElement;
-        iconElement.className = IconClassName.Base;
-
-        cellElement.title = alias;
-
-        if (alias) {
-            const glyph = this.dictionary[alias];
-            if (glyph) {
-                const className = IconClassName.Prefix + glyph.icon;
-                iconElement.classList.add(className);
-            }
         }
     }
 
@@ -225,7 +163,7 @@ export class GlyphEditor extends EventEmitter {
         let currentChunk = null;
 
         for (let i = 0; i < this.width * this.height; i++) {
-            const cellElement = this.grid[i];
+            const cellElement = this.gridCells[i];
             const alias = cellElement.title;
 
             if (!alias) {
@@ -243,7 +181,7 @@ export class GlyphEditor extends EventEmitter {
             }
 
             if (!currentChunk) {
-                currentChunk = {index: i, string: ""};
+                currentChunk = { index: i, string: "" };
             }
 
             currentChunk.string += char;
@@ -253,7 +191,7 @@ export class GlyphEditor extends EventEmitter {
             chunk.push(currentChunk);
         }
 
-        return chunk.map(({index, string}) => index + CHUNK_SEPARATOR + string).join(GROUP_SEPARATOR);
+        return chunk.map(({ index, string }) => index + CHUNK_SEPARATOR + string).join(GROUP_SEPARATOR);
     }
 
     loadFromHash(hash: string): void {
@@ -279,7 +217,7 @@ export class GlyphEditor extends EventEmitter {
                 continue;
             }
 
-            const cellElement = this.grid[index + i];
+            const cellElement = this.gridCells[index + i];
             this.setGlyph(cellElement, alias);
         }
     }
@@ -308,25 +246,6 @@ export class GlyphEditor extends EventEmitter {
 
     getCurrentCell(): HTMLElement {
         const i = this.index(this.state.position.x, this.state.position.y);
-        return this.grid[i];
-    }
-
-    index(x: number, y: number): number {
-        return y * this.width + x;
+        return this.gridCells[i];
     }
 }
-
-function getCellElement(event: Event): HTMLElement|null {
-    if (!(event.target && event.target instanceof HTMLElement)) {
-        return null;
-    }
-
-    switch (event.target.nodeName) {
-        case "TD":
-            return event.target;
-        case "I":
-            return event.target.parentNode as HTMLElement;
-        default:
-            return null;
-    }
-};

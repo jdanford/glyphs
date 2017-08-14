@@ -1,6 +1,6 @@
-import {getChildByClassName} from "./utils";
-import {ClassName} from "./ClassName";
-import {KeyCode} from "./KeyCode";
+import { getChildByClassName } from "./utils";
+import { ClassName } from "./ClassName";
+import { KeyCode } from "./KeyCode";
 
 export interface ModalWindowOptions {
     modalElement: HTMLElement;
