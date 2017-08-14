@@ -19,6 +19,7 @@ export abstract class GlyphGrid extends EventEmitter {
     protected height: number;
     protected gridElement: HTMLElement;
     protected gridCells: HTMLElement[];
+    protected glyphs: Glyph[];
     protected dictionary: GlyphDictionary;
 
     protected abstract onCellClick(cellElement: HTMLElement, event: MouseEvent): void;
@@ -30,8 +31,9 @@ export abstract class GlyphGrid extends EventEmitter {
         this.height = options.height;
         this.gridElement = options.gridElement;
         this.gridCells = new Array(this.width * this.height);
+        this.glyphs = options.glyphs;
 
-        this.initDictionary(options.glyphs);
+        this.initDictionary();
         this.fill();
 
         this.gridElement.addEventListener("click", event => {
@@ -42,10 +44,10 @@ export abstract class GlyphGrid extends EventEmitter {
         });
     }
 
-    private initDictionary(glyphs: Glyph[]): void {
+    private initDictionary(): void {
         this.dictionary = {};
 
-        glyphs.forEach((glyph, i) => {
+        this.glyphs.forEach((glyph, i) => {
             const { alias } = glyph;
             this.dictionary[alias] = glyph;
         });
@@ -64,9 +66,14 @@ export abstract class GlyphGrid extends EventEmitter {
 
                 const i = this.index(x, y);
                 this.gridCells[i] = cellElement;
-                this.setGlyph(cellElement, "");
+                const alias = this.getInitialGlyphAlias(i);
+                this.setGlyph(cellElement, alias);
             }
         }
+    }
+
+    protected getInitialGlyphAlias(i: number): string {
+        return "";
     }
 
     setGlyph(cellElement: HTMLElement, alias: string): void {

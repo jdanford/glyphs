@@ -1,4 +1,4 @@
 export enum StepSpeed {
-    Slow = 200,
-    Fast = 40,
+    Slow = 150,
+    Fast = 25,
 }

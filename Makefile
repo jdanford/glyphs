@@ -10,7 +10,7 @@ $(OUTFILE): tsconfig.json $(shell find src -type f)
 	tsc --outFile $(OUTFILE)
 
 clean:
-	rm $(OUTFILE)
+	rm -f $(OUTFILE)
 
 serve: build $(OUTFILE)
 	@hs

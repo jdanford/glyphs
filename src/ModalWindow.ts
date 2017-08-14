@@ -32,7 +32,7 @@ export class ModalWindow {
 
     protected modalElement: HTMLElement;
     private closeButton: HTMLElement;
-    private escapeKeyListener = this.onEscapeKeyPressed.bind(this);
+    private keyPressedListener = this.onKeyPressed.bind(this);
 
     constructor(options: ModalWindowOptions) {
         this.modalElement = options.modalElement;
@@ -46,7 +46,7 @@ export class ModalWindow {
         this.closeButton.addEventListener("click", _ => this.hide());
     }
 
-    private onEscapeKeyPressed(event: KeyboardEvent): void {
+    private onKeyPressed(event: KeyboardEvent): void {
         if (!this.visible) {
             return;
         }
@@ -76,10 +76,10 @@ export class ModalWindow {
         document.body.classList.toggle(ClassName.ModalOpen, visible);
 
         if (visible) {
-            document.addEventListener("keyup", this.escapeKeyListener);
+            document.addEventListener("keyup", this.keyPressedListener);
             ModalWindow.activeInstance = this;
         } else {
-            document.removeEventListener("keyup", this.escapeKeyListener);
+            document.removeEventListener("keyup", this.keyPressedListener);
         }
     }
 }

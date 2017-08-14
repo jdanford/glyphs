@@ -14,7 +14,7 @@
   <script>System.import("index")</script>
 </head>
 <body>
-  <div class="container">
+  <div id="editor-container">
     <div class="controls">
       <button id="clear-button" title="Clear">
         <i class="fa fa-trash"></i>
@@ -39,8 +39,11 @@
         <span>Dark theme</span>
       </label>
     </div>
-    <table id="editor-grid"></table>
+    <table id="editor-grid" class="glyph-grid"></table>
     <div id="output"></div>
+  </div>
+  <div id="selector-container" hidden>
+    <table id="selector-grid" class="glyph-grid"></table>
   </div>
   <div id="modal-container">
     <div class="modal" id="help-modal">

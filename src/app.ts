@@ -1,9 +1,11 @@
 import { getElementById } from "./utils";
 import { ClassName } from "./ClassName";
 import { IconClassName } from "./IconClassName";
+import { Point } from "./Point";
 import { glyphs } from "./glyphs";
-import { GlyphEditor } from "./GlyphEditor";
 import { StepSpeed } from "./StepSpeed";
+import { GlyphEditor } from "./GlyphEditor";
+import { GlyphSelector } from "./GlyphSelector";
 import { ModalWindow } from "./ModalWindow";
 import { HelpWindow } from "./HelpWindow";
 
@@ -11,7 +13,7 @@ const GRID_WIDTH: number = 24;
 const GRID_HEIGHT: number = 24;
 
 export class App {
-    private gridElement: HTMLElement;
+    private editorGridElement: HTMLElement;
     private outputElement: HTMLElement;
     private fastButton: HTMLElement;
     private startButton: HTMLElement;
@@ -20,12 +22,14 @@ export class App {
     private clearButton: HTMLElement;
     private helpButton: HTMLElement;
     private darkThemeCheckbox: HTMLInputElement;
+    private stateChangeListener: (event: KeyboardEvent) => void;
 
     private editor: GlyphEditor;
+    private selector: GlyphSelector;
     private helpWindow: HelpWindow;
 
     constructor() {
-        this.gridElement = getElementById("editor-grid");
+        this.editorGridElement = getElementById("editor-grid");
         this.outputElement = getElementById("output");
         this.fastButton = getElementById("fast-button");
         this.startButton = getElementById("start-button");
@@ -34,6 +38,7 @@ export class App {
         this.clearButton = getElementById("clear-button");
         this.helpButton = getElementById("help-button");
         this.darkThemeCheckbox = getElementById("dark-theme-checkbox") as HTMLInputElement;
+        this.stateChangeListener = this.onStateChange.bind(this);
 
         this.initChildren();
         this.initListeners();
@@ -43,8 +48,13 @@ export class App {
     }
 
     private initChildren(): void {
-        const gridOptions = { glyphs, width: GRID_WIDTH, height: GRID_HEIGHT, gridElement: this.gridElement, outputElement: this.outputElement };
-        this.editor = new GlyphEditor(gridOptions);
+        const editorOptions = { glyphs, width: GRID_WIDTH, height: GRID_HEIGHT, gridElement: this.editorGridElement, outputElement: this.outputElement };
+        this.editor = new GlyphEditor(editorOptions);
+
+        const selectorElement = getElementById("selector-container");
+        const selectorGridElement = getElementById("selector-grid");
+        const selectorOptions = { glyphs, containerElement: selectorElement, gridElement: selectorGridElement };
+        this.selector = new GlyphSelector(selectorOptions);
 
         const modalContainer = getElementById("modal-container");
         ModalWindow.setModalContainer(modalContainer);
@@ -54,11 +64,28 @@ export class App {
     }
 
     private initListeners(): void {
-        let updateListener = () => this.updateButtonState();
-        this.editor.addListener("start", updateListener);
-        this.editor.addListener("pause", updateListener);
-        this.editor.addListener("reset", updateListener);
-        this.editor.addListener("changeSpeed", updateListener);
+        this.editor.addListener("start", this.stateChangeListener);
+        this.editor.addListener("pause", this.stateChangeListener);
+        this.editor.addListener("reset", this.stateChangeListener);
+        this.editor.addListener("changeSpeed", this.stateChangeListener);
+
+        this.editor.addListener("endEditCell", () => {
+            this.selector.hide();
+        });
+
+        this.selector.addListener("close", () => {
+            this.editor.endEditCell();
+        });
+
+        this.editor.addListener("editCell", (cellElement: HTMLElement) => {
+            const position = computeAbsolutePosition(cellElement);
+            this.selector.show(position);
+            this.selector.once("selectGlyph", (alias: string) => {
+                this.editor.endEditCell();
+                this.editor.setGlyph(cellElement, alias);
+                this.editor.saveToWindow();
+            });
+        });
 
         this.clearButton.addEventListener("click", _ => {
             const message = "Clear grid?";
@@ -99,9 +126,14 @@ export class App {
         });
     }
 
+    private onStateChange(): void {
+        this.editor.endEditCell();
+        this.updateButtonState();
+    }
+
     private updateOutputSize(): void {
-        const gridWidth = this.gridElement.offsetWidth;
-        this.outputElement.style.setProperty("width", `${gridWidth}px`);
+        const width = this.editorGridElement.offsetWidth;
+        this.outputElement.style.setProperty("width", `${width}px`);
     }
 
     private setButtonState(running: boolean): void {
@@ -110,9 +142,8 @@ export class App {
         iconElement.className = IconClassName.Base;
         iconElement.classList.add(iconClassName);
 
-        let runningSlow = running && this.editor.stepSpeed === StepSpeed.Slow;
-        let runningFast = running && this.editor.stepSpeed === StepSpeed.Fast;
-
+        const runningSlow = running && this.editor.stepSpeed === StepSpeed.Slow;
+        const runningFast = running && this.editor.stepSpeed === StepSpeed.Fast;
         this.startButton.classList.toggle("active", runningSlow);
         this.fastButton.classList.toggle("active", runningFast);
     }
@@ -129,3 +160,16 @@ export class App {
         document.body.classList.toggle(ClassName.DarkTheme, enabled);
     }
 }
+
+function computeAbsolutePosition(element: HTMLElement): Point {
+    let x = 0;
+    let y = 0;
+
+    do {
+        x += element.offsetLeft;
+        y += element.offsetTop;
+        element = element.offsetParent as HTMLElement;
+    } while (element);
+
+    return { x, y };
+};

@@ -20,6 +20,7 @@ export interface GlyphEditorOptions extends GlyphGridOptions {
 export class GlyphEditor extends GlyphGrid {
     private outputElement: HTMLElement;
     private activeCell?: HTMLElement;
+    private editingCell?: HTMLElement;
     private lastStepTime: number;
     private charTable: StringTable;
     private aliasTable: StringTable;
@@ -48,10 +49,22 @@ export class GlyphEditor extends GlyphGrid {
         this.lastStepTime = 0;
     }
 
-    onCellClick(cellElement: HTMLElement, event: MouseEvent) {
-        const alias = prompt("Glyph:", "") || "";
-        this.setGlyph(cellElement, alias);
-        this.saveToWindow();
+    onCellClick(cellElement: HTMLElement, event: MouseEvent): void {
+        if (this.editingCell === cellElement) {
+            this.endEditCell();
+        } else {
+            this.editCell(cellElement)
+        }
+    }
+
+    editCell(cellElement: HTMLElement): void {
+        this.editingCell = cellElement;
+        this.emit("editCell", this.editingCell);
+    }
+
+    endEditCell(): void {
+        this.editingCell = undefined;
+        this.emit("endEditCell");
     }
 
     initTables(glyphs: Glyph[]): void {
@@ -90,7 +103,7 @@ export class GlyphEditor extends GlyphGrid {
         this.state.position.x = (this.state.position.x + this.width) % this.width;
         this.state.position.y = (this.state.position.y + this.height) % this.height;
 
-        this.emitEvent("step");
+        this.emit("step");
     }
 
     start(): void {
@@ -121,7 +134,7 @@ export class GlyphEditor extends GlyphGrid {
         this.initState();
         this.clearActiveCell();
         this.clearOutput();
-        this.emitEvent("reset");
+        this.emit("reset");
     }
 
     clearActiveCell(): void {
@@ -144,7 +157,7 @@ export class GlyphEditor extends GlyphGrid {
 
         this.running = running;
         const eventType = running ? "start" : "pause";
-        this.emitEvent(eventType);
+        this.emit(eventType);
         return true;
     }
 
@@ -154,12 +167,12 @@ export class GlyphEditor extends GlyphGrid {
         }
 
         this.stepSpeed = stepSpeed;
-        this.emitEvent("changeSpeed");
+        this.emit("changeSpeed");
         return true;
     }
 
     getHash(): string {
-        let chunk = [];
+        const chunks = [];
         let currentChunk = null;
 
         for (let i = 0; i < this.width * this.height; i++) {
@@ -168,7 +181,7 @@ export class GlyphEditor extends GlyphGrid {
 
             if (!alias) {
                 if (currentChunk) {
-                    chunk.push(currentChunk);
+                    chunks.push(currentChunk);
                     currentChunk = null;
                 }
 
@@ -188,10 +201,10 @@ export class GlyphEditor extends GlyphGrid {
         }
 
         if (currentChunk && currentChunk.string) {
-            chunk.push(currentChunk);
+            chunks.push(currentChunk);
         }
 
-        return chunk.map(({ index, string }) => index + CHUNK_SEPARATOR + string).join(GROUP_SEPARATOR);
+        return chunks.map(({ index, string }) => index + CHUNK_SEPARATOR + string).join(GROUP_SEPARATOR);
     }
 
     loadFromHash(hash: string): void {

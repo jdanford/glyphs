@@ -8,12 +8,14 @@
     --background-color: #fafafa;
     --foreground-color: #222;
     --border-color: #aaa;
-    --inset-shadow-color: #999;
+    --shadow-color: rgba(0, 0, 0, 0.2);
     --neutral-color-red: #822020;
     --neutral-color-yellow: #91921a;
     --neutral-color-green: #207d20;
     --neutral-color-blue: #3964a5;
     --neutral-color-purple: #6c1688;
+    --font-family-sans-serif: 'Lato', sans-serif;
+    --font-family-monospace: 'Lucida Sans Typewriter', monospace;
 }
 
 i.fa {
@@ -27,7 +29,6 @@ i.fa {
     --background-color: #222;
     --foreground-color: #ddd;
     --border-color: #444;
-    --inset-shadow-color: #000;
 }
 
 html {
@@ -47,7 +48,7 @@ html {
 body {
     width: 100%;
     height: 100%;
-    font-family: 'Lato', sans-serif;
+    font-family: var(--font-family-sans-serif);
     font-size: var(--font-size);
     color: var(--foreground-color);
     background: var(--body-color);
@@ -66,7 +67,7 @@ a:visited {
     color: var(--neutral-color-blue);
 }
 
-.container {
+#editor-container {
     padding: var(--margin-size);
 }
 
@@ -93,7 +94,7 @@ a:visited {
 .controls button:active,
 .controls button.active {
     --offset-size: 1px;
-    box-shadow: inset var(--offset-size) var(--offset-size) 0 var(--inset-shadow-color);
+    box-shadow: inset var(--offset-size) var(--offset-size) 0 var(--shadow-color);
 }
 
 .controls button:active i.fa,
@@ -121,29 +122,45 @@ a:visited {
     border-color: var(--neutral-color-red);
 }
 
-#editor-grid {
-    margin: var(--margin-size) 0 0 0;
+.glyph-grid {
+    margin: 0;
     border-spacing: 0;
     border-collapse: collapse;
 }
 
-#editor-grid td {
+.glyph-grid td {
     border: var(--border-width) solid var(--border-color);
     background: var(--background-color);
     color: var(--foreground-color);
 }
 
-#editor-grid td.active {
+.glyph-grid td.active {
     background: var(--foreground-color);
     color: var(--background-color);
 }
 
-#editor-grid td i {
+.glyph-grid td i {
     width: var(--glyph-size);
     height: var(--glyph-size);
     margin: 1px 1px -1px;
     text-align: center;
     vertical-align: middle;
+}
+
+#editor-grid {
+    margin: var(--margin-size) 0 0 0;
+}
+
+#selector-container {
+    --offset-size: 2px;
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    box-shadow: var(--offset-size) var(--offset-size) 0 var(--shadow-color);
+}
+
+#selector-grid {
+    --border-color: var(--foreground-color);
 }
 
 #output {
@@ -155,6 +172,7 @@ a:visited {
 
 #output pre {
     margin: 0;
+    font-family: var(--font-family-monospace);
 }
 
 #modal-container {
@@ -226,5 +244,5 @@ body.modal-open #modal-container {
 }
 
 .glyphs .alias {
-    font-family: 'Roboto Mono', monospace;
+    font-family: var(--font-family-monospace);
 }
