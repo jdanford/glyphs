@@ -25,7 +25,7 @@ Click on a glyph (or empty cell) to change it. Click the question mark button to
 
 ### Internal
 - Move program encoding/decoding to separate module
-- Move hash fragment handling out of GlyphGrid
+- Move hash fragment handling out of GlyphEditor
 - Expose better interface for glyph `effect` functions
 - Make CSS more modular
 

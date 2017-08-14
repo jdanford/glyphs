@@ -119,24 +119,24 @@ a, a:visited {
     border-color: var(--neutral-color-red);
 }
 
-#grid {
+#editor-grid {
     margin: var(--margin-size) 0 0 0;
     border-spacing: 0;
     border-collapse: collapse;
 }
 
-#grid td {
+#editor-grid td {
     border: var(--border-width) solid var(--border-color);
     background: var(--background-color);
     color: var(--foreground-color);
 }
 
-#grid td.active {
+#editor-grid td.active {
     background: var(--foreground-color);
     color: var(--background-color);
 }
 
-#grid td i {
+#editor-grid td i {
     width: var(--glyph-size);
     height: var(--glyph-size);
     margin: 1px 1px -1px;

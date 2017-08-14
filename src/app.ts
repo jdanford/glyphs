@@ -2,7 +2,7 @@ import {getElementById} from "./utils";
 import {ClassName} from "./ClassName";
 import {IconClassName} from "./IconClassName";
 import {glyphs} from "./glyphs";
-import {GlyphGrid} from "./GlyphGrid";
+import {GlyphEditor} from "./GlyphEditor";
 import {StepSpeed} from "./StepSpeed";
 import {ModalWindow} from "./ModalWindow";
 import {HelpWindow} from "./HelpWindow";
@@ -18,11 +18,11 @@ export class App {
     private helpButton: HTMLElement;
     private darkThemeCheckbox: HTMLInputElement;
 
-    private grid: GlyphGrid;
+    private editor: GlyphEditor;
     private helpWindow: HelpWindow;
 
     constructor() {
-        this.gridElement = getElementById("grid");
+        this.gridElement = getElementById("editor-grid");
         this.outputElement = getElementById("output");
         this.fastButton = getElementById("fast-button");
         this.startButton = getElementById("start-button");
@@ -41,7 +41,7 @@ export class App {
 
     private initChildren(): void {
         const gridOptions = {glyphs, gridElement: this.gridElement, outputElement: this.outputElement};
-        this.grid = new GlyphGrid(gridOptions);
+        this.editor = new GlyphEditor(gridOptions);
 
         const modalContainer = getElementById("modal-container");
         ModalWindow.setModalContainer(modalContainer);
@@ -51,38 +51,40 @@ export class App {
     }
 
     private initListeners(): void {
-        this.grid.addListener("start", () => this.updateButtonState());
-        this.grid.addListener("pause", () => this.updateButtonState());
-        this.grid.addListener("reset", () => this.updateButtonState());
+        let updateListener = () => this.updateButtonState();
+        this.editor.addListener("start", updateListener);
+        this.editor.addListener("pause", updateListener);
+        this.editor.addListener("reset", updateListener);
+        this.editor.addListener("changeSpeed", updateListener);
 
         this.clearButton.addEventListener("click", _ => {
             const message = "Clear grid?";
             if (confirm(message)) {
-                this.grid.clear();
-                this.grid.saveToWindow();
+                this.editor.clear();
+                this.editor.saveToWindow();
             }
         });
 
         this.stopButton.addEventListener("click", _ => {
-            this.grid.reset();
+            this.editor.reset();
         });
 
         this.stepButton.addEventListener("click", _ => {
-            if (this.grid.running) {
-                this.grid.pause();
+            if (this.editor.running) {
+                this.editor.pause();
             } else {
-                this.grid.step();
+                this.editor.step();
             }
         });
 
         this.startButton.addEventListener("click", _ => {
-            this.grid.stepSpeed = StepSpeed.Slow;
-            this.grid.start();
+            this.editor.setStepSpeed(StepSpeed.Slow);
+            this.editor.start();
         });
 
         this.fastButton.addEventListener("click", _ => {
-            this.grid.stepSpeed = StepSpeed.Fast;
-            this.grid.start();
+            this.editor.setStepSpeed(StepSpeed.Fast);
+            this.editor.start();
         });
 
         this.helpButton.addEventListener("click", _ => {
@@ -105,15 +107,15 @@ export class App {
         iconElement.className = IconClassName.Base;
         iconElement.classList.add(iconClassName);
 
-        let runningSlow = running && this.grid.stepSpeed === StepSpeed.Slow;
-        let runningFast = running && this.grid.stepSpeed === StepSpeed.Fast;
+        let runningSlow = running && this.editor.stepSpeed === StepSpeed.Slow;
+        let runningFast = running && this.editor.stepSpeed === StepSpeed.Fast;
 
         this.startButton.classList.toggle("active", runningSlow);
         this.fastButton.classList.toggle("active", runningFast);
     }
 
     private updateButtonState(): void {
-        this.setButtonState(this.grid.running);
+        this.setButtonState(this.editor.running);
     }
 
     private get darkThemeEnabled(): boolean {

@@ -2,16 +2,14 @@
 
 import {ClassName} from "./ClassName";
 import {IconClassName} from "./IconClassName";
-import {Point, moveInDirection} from "./Point";
-import {Direction, rotate} from "./Direction";
 import {Glyph} from "./glyphs";
 import {StepSpeed} from "./StepSpeed";
+import {ProgramState} from "./ProgramState";
 
 const ENCODING_CHARS: string = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 const CHUNK_SEPARATOR: string = ":";
 const GROUP_SEPARATOR: string = "-";
 
-const INITIAL_DIRECTION: Direction = Direction.Right;
 const GRID_WIDTH: number = 24;
 const GRID_HEIGHT: number = 24;
 
@@ -23,13 +21,13 @@ interface StringTable {
     [key: string]: string;
 }
 
-export interface GlyphGridOptions {
+export interface GlyphEditorOptions {
     gridElement: HTMLElement;
     outputElement: HTMLElement;
     glyphs: Glyph[];
 }
 
-export class GlyphGrid extends EventEmitter {
+export class GlyphEditor extends EventEmitter {
     private gridElement: HTMLElement;
     private outputElement: HTMLElement;
     private width: number;
@@ -41,13 +39,11 @@ export class GlyphGrid extends EventEmitter {
     private charTable: StringTable;
     private aliasTable: StringTable;
 
-    public direction: Direction;
-    public position: Point;
-    public stack: number[];
+    public state: ProgramState;
     public running: boolean;
     public stepSpeed: StepSpeed;
 
-    constructor(options: GlyphGridOptions) {
+    constructor(options: GlyphEditorOptions) {
         super();
 
         this.gridElement = options.gridElement;
@@ -62,13 +58,10 @@ export class GlyphGrid extends EventEmitter {
     }
 
     initState(): void {
-        this.direction = INITIAL_DIRECTION;
-        this.position = {x: 0, y: 0};
-        this.stack = [];
-
+        this.state = new ProgramState();
         this.running = false;
-        this.lastStepTime = 0;
         this.stepSpeed = StepSpeed.Slow;
+        this.lastStepTime = 0;
     }
 
     initGrid(): void {
@@ -143,7 +136,7 @@ export class GlyphGrid extends EventEmitter {
     }
 
     step(): void {
-        const i = this.index(this.position.x, this.position.y);
+        const i = this.index(this.state.position.x, this.state.position.y);
 
         this.clearActiveCell();
         this.activeCell = this.getCurrentCell();
@@ -155,32 +148,31 @@ export class GlyphGrid extends EventEmitter {
             glyph.effect(this);
         }
 
-        moveInDirection(this.position, this.direction);
-
-        this.position.x = (this.position.x + this.width) % this.width;
-        this.position.y = (this.position.y + this.height) % this.height;
+        this.state.move();
+        this.state.position.x = (this.state.position.x + this.width) % this.width;
+        this.state.position.y = (this.state.position.y + this.height) % this.height;
 
         this.emitEvent("step");
     }
 
     start(): void {
-        this.setRunning(true);
+        if (this.setRunning(true)) {
+            const callback = (time: number) => {
+                if (!this.running) {
+                    return;
+                }
 
-        const callback = (time: number) => {
-            if (!this.running) {
-                return;
-            }
+                requestAnimationFrame(callback);
+
+                const nextStepTime = this.lastStepTime + this.stepSpeed;
+                if (time >= nextStepTime) {
+                    this.lastStepTime = time;
+                    this.step();
+                }
+            };
 
             requestAnimationFrame(callback);
-
-            const nextStepTime = this.lastStepTime + this.stepSpeed;
-            if (time >= nextStepTime) {
-                this.lastStepTime = time;
-                this.step();
-            }
-        };
-
-        requestAnimationFrame(callback);
+        }
     }
 
     pause(): void {
@@ -207,14 +199,25 @@ export class GlyphGrid extends EventEmitter {
         this.clearOutput();
     }
 
-    setRunning(running: boolean) {
+    setRunning(running: boolean): boolean {
         if (this.running === running) {
-            return;
+            return false;
         }
 
         this.running = running;
         const eventType = running ? "start" : "pause";
         this.emitEvent(eventType);
+        return true;
+    }
+
+    setStepSpeed(stepSpeed: StepSpeed): boolean {
+        if (this.stepSpeed === stepSpeed) {
+            return false;
+        }
+
+        this.stepSpeed = stepSpeed;
+        this.emitEvent("changeSpeed");
+        return true;
     }
 
     getHash(): string {
@@ -304,21 +307,12 @@ export class GlyphGrid extends EventEmitter {
     }
 
     getCurrentCell(): HTMLElement {
-        const i = this.index(this.position.x, this.position.y);
+        const i = this.index(this.state.position.x, this.state.position.y);
         return this.grid[i];
     }
 
     index(x: number, y: number): number {
         return y * this.width + x;
-    }
-
-    getStackItem(n: number): number {
-        const i = this.stack.length - n - 1;
-        return this.stack[i];
-    }
-
-    rotateDirection(offset: number): void {
-        this.direction = rotate(this.direction, offset);
     }
 }
 
