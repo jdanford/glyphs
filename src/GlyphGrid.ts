@@ -1,5 +1,6 @@
 /// <reference path="EventEmitter.d.ts" />
 
+import { getCellElement } from "./utils";
 import { IconClassName } from "./IconClassName";
 import { Glyph } from "./glyphs";
 
@@ -93,20 +94,5 @@ export abstract class GlyphGrid extends EventEmitter {
 
     index(x: number, y: number): number {
         return y * this.width + x;
-    }
-}
-
-function getCellElement(event: Event): HTMLElement | null {
-    if (!(event.target && event.target instanceof HTMLElement)) {
-        return null;
-    }
-
-    switch (event.target.nodeName) {
-        case "TD":
-            return event.target;
-        case "I":
-            return event.target.parentNode as HTMLElement;
-        default:
-            return null;
     }
 }

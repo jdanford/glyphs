@@ -1,7 +1,6 @@
-import { getElementById } from "./utils";
+import { getElementById, computeAbsolutePosition } from "./utils";
 import { ClassName } from "./ClassName";
 import { IconClassName } from "./IconClassName";
-import { Point } from "./Point";
 import { glyphs } from "./glyphs";
 import { StepSpeed } from "./StepSpeed";
 import { GlyphEditor } from "./GlyphEditor";
@@ -22,11 +21,10 @@ export class App {
     private clearButton: HTMLElement;
     private helpButton: HTMLElement;
     private darkThemeCheckbox: HTMLInputElement;
-    private stateChangeListener: (event: KeyboardEvent) => void;
-
     private editor: GlyphEditor;
     private selector: GlyphSelector;
     private helpWindow: HelpWindow;
+    private stateChangeListener: (event: KeyboardEvent) => void;
 
     constructor() {
         this.editorGridElement = getElementById("editor-grid");
@@ -144,8 +142,8 @@ export class App {
 
         const runningSlow = running && this.editor.stepSpeed === StepSpeed.Slow;
         const runningFast = running && this.editor.stepSpeed === StepSpeed.Fast;
-        this.startButton.classList.toggle("active", runningSlow);
-        this.fastButton.classList.toggle("active", runningFast);
+        this.startButton.classList.toggle(ClassName.Active, runningSlow);
+        this.fastButton.classList.toggle(ClassName.Active, runningFast);
     }
 
     private updateButtonState(): void {
@@ -160,16 +158,3 @@ export class App {
         document.body.classList.toggle(ClassName.DarkTheme, enabled);
     }
 }
-
-function computeAbsolutePosition(element: HTMLElement): Point {
-    let x = 0;
-    let y = 0;
-
-    do {
-        x += element.offsetLeft;
-        y += element.offsetTop;
-        element = element.offsetParent as HTMLElement;
-    } while (element);
-
-    return { x, y };
-};

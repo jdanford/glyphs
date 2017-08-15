@@ -3,7 +3,7 @@ import { IconClassName } from "./IconClassName";
 import { Glyph } from "./glyphs";
 import { GlyphGrid, GlyphGridOptions } from "./GlyphGrid";
 import { StepSpeed } from "./StepSpeed";
-import { ProgramState } from "./ProgramState";
+import { ProgramCursor } from "./ProgramCursor";
 
 const ENCODING_CHARS: string = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 const CHUNK_SEPARATOR: string = ":";
@@ -25,7 +25,8 @@ export class GlyphEditor extends GlyphGrid {
     private charTable: StringTable;
     private aliasTable: StringTable;
 
-    public state: ProgramState;
+    public cursor: ProgramCursor;
+    public stack: number[];
     public running: boolean;
     public stepSpeed: StepSpeed;
 
@@ -43,7 +44,8 @@ export class GlyphEditor extends GlyphGrid {
     }
 
     initState(): void {
-        this.state = new ProgramState();
+        this.cursor = new ProgramCursor();
+        this.stack = [];
         this.running = false;
         this.stepSpeed = StepSpeed.Slow;
         this.lastStepTime = 0;
@@ -52,9 +54,9 @@ export class GlyphEditor extends GlyphGrid {
     onCellClick(cellElement: HTMLElement, event: MouseEvent): void {
         if (this.editingCell === cellElement) {
             this.endEditCell();
-        } else {
-            this.editCell(cellElement)
         }
+
+        this.editCell(cellElement);
     }
 
     editCell(cellElement: HTMLElement): void {
@@ -87,7 +89,7 @@ export class GlyphEditor extends GlyphGrid {
     }
 
     step(): void {
-        const i = this.index(this.state.position.x, this.state.position.y);
+        const i = this.index(this.cursor.position.x, this.cursor.position.y);
 
         this.clearActiveCell();
         this.activeCell = this.getCurrentCell();
@@ -99,9 +101,9 @@ export class GlyphEditor extends GlyphGrid {
             glyph.effect(this);
         }
 
-        this.state.move();
-        this.state.position.x = (this.state.position.x + this.width) % this.width;
-        this.state.position.y = (this.state.position.y + this.height) % this.height;
+        this.cursor.advance();
+        this.cursor.position.x = (this.cursor.position.x + this.width) % this.width;
+        this.cursor.position.y = (this.cursor.position.y + this.height) % this.height;
 
         this.emit("step");
     }
@@ -258,7 +260,12 @@ export class GlyphEditor extends GlyphGrid {
     }
 
     getCurrentCell(): HTMLElement {
-        const i = this.index(this.state.position.x, this.state.position.y);
+        const i = this.index(this.cursor.position.x, this.cursor.position.y);
         return this.gridCells[i];
+    }
+
+    getStackItem(n: number): number {
+        const i = this.stack.length - n - 1;
+        return this.stack[i];
     }
 }

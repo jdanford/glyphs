@@ -29,7 +29,7 @@ export class GlyphSelector extends GlyphGrid {
     }
 
     protected getInitialGlyphAlias(i: number): string {
-        const glyph = this.glyphs[i - 1] || {alias: ""};
+        const glyph = this.glyphs[i - 1] || { alias: "" };
         return glyph.alias;
     }
 

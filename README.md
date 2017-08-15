@@ -13,21 +13,20 @@ If you have [http-server] installed, run `make serve` and open the URL it gives 
 
 ## Usage (in app)
 
-Click on a glyph (or empty cell) to change it. Click the question mark button to view documentation and examples.
+Click the question mark button to view documentation and examples.
 
 ## Future improvements
 
 ### External
-- Use good UI design (no `window.prompt`)
+- Add input to console (no more `window.prompt`)
 - Add more examples
 - Add more glyphs
+- Make UI scale better with font size
 - Make a better favicon
 
 ### Internal
 - Move program encoding/decoding to separate module
 - Move hash fragment handling out of GlyphEditor
-- Expose better interface for glyph `effect` functions
-- Make CSS more modular
 
 ## Attributions 💖
 
