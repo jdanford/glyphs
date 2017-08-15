@@ -211,6 +211,10 @@ body.modal-open #modal-container {
     color: var(--neutral-color-red);
 }
 
+#help-modal h3 {
+    margin-top: 0;
+}
+
 .close-button i.fa {
     line-height: 1;
 }

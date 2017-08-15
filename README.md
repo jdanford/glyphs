@@ -25,6 +25,7 @@ Click the question mark button to view documentation and examples.
 - Make a better favicon
 
 ### Internal
+- Make CSS more modular
 - Move program encoding/decoding to separate module
 
 ## Attributions 💖
