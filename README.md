@@ -26,7 +26,6 @@ Click the question mark button to view documentation and examples.
 
 ### Internal
 - Move program encoding/decoding to separate module
-- Move hash fragment handling out of GlyphEditor
 
 ## Attributions 💖
 

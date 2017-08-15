@@ -15,6 +15,7 @@ interface StringTable {
 
 export interface GlyphEditorOptions extends GlyphGridOptions {
     outputElement: HTMLElement;
+    initialHash: string;
 }
 
 export class GlyphEditor extends GlyphGrid {
@@ -38,9 +39,7 @@ export class GlyphEditor extends GlyphGrid {
 
         this.initState();
         this.initTables(options.glyphs);
-
-        window.onhashchange = _ => this.loadFromWindow();
-        this.loadFromWindow();
+        this.loadFromHash(options.initialHash);
     }
 
     initState(): void {
@@ -237,14 +236,9 @@ export class GlyphEditor extends GlyphGrid {
         }
     }
 
-    saveToWindow(): void {
+    saveHash(): void {
         const hash = this.getHash();
-        window.location.hash = "#" + hash;
-    }
-
-    loadFromWindow(): void {
-        const hash = window.location.hash.slice(1);
-        this.loadFromHash(hash);
+        this.emit("updateHash", hash);
     }
 
     print(text: string): void {

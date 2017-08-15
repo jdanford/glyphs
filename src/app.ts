@@ -1,4 +1,4 @@
-import { getElementById, computeAbsolutePosition } from "./utils";
+import { computeAbsolutePosition, getElementById, getWindowHash, setWindowHash } from "./utils";
 import { ClassName } from "./ClassName";
 import { IconClassName } from "./IconClassName";
 import { glyphs } from "./glyphs";
@@ -10,6 +10,7 @@ import { HelpWindow } from "./HelpWindow";
 
 const GRID_WIDTH: number = 24;
 const GRID_HEIGHT: number = 24;
+const CLEAR_MESSAGE: string = "Clear grid?";
 
 export class App {
     private editorGridElement: HTMLElement;
@@ -46,7 +47,15 @@ export class App {
     }
 
     private initChildren(): void {
-        const editorOptions = { glyphs, width: GRID_WIDTH, height: GRID_HEIGHT, gridElement: this.editorGridElement, outputElement: this.outputElement };
+        const initialHash = getWindowHash();
+        const editorOptions = {
+            glyphs,
+            initialHash,
+            width: GRID_WIDTH,
+            height: GRID_HEIGHT,
+            gridElement: this.editorGridElement,
+            outputElement: this.outputElement
+        };
         this.editor = new GlyphEditor(editorOptions);
 
         const selectorElement = getElementById("selector-container");
@@ -66,6 +75,12 @@ export class App {
         this.editor.addListener("pause", this.stateChangeListener);
         this.editor.addListener("reset", this.stateChangeListener);
         this.editor.addListener("changeSpeed", this.stateChangeListener);
+        this.editor.addListener("updateHash", setWindowHash);
+
+        window.onhashchange = _ => {
+            const hash = getWindowHash();
+            this.editor.loadFromHash(hash);
+        }
 
         this.editor.addListener("endEditCell", () => {
             this.selector.hide();
@@ -81,15 +96,14 @@ export class App {
             this.selector.once("selectGlyph", (alias: string) => {
                 this.editor.endEditCell();
                 this.editor.setGlyph(cellElement, alias);
-                this.editor.saveToWindow();
+                this.editor.saveHash();
             });
         });
 
         this.clearButton.addEventListener("click", _ => {
-            const message = "Clear grid?";
-            if (confirm(message)) {
+            if (confirm(CLEAR_MESSAGE)) {
                 this.editor.clear();
-                this.editor.saveToWindow();
+                this.editor.saveHash();
             }
         });
 

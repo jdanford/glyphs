@@ -53,3 +53,11 @@ export function getElementById(id: string): HTMLElement {
 
     return element;
 }
+
+export function getWindowHash(): string {
+    return window.location.hash.slice(1);
+}
+
+export function setWindowHash(hash: string) {
+    window.location.hash = "#" + hash;
+}
