@@ -21,3 +21,9 @@ export function moveInDirection(point: Point, direction: Direction): void {
             break;
     }
 }
+
+export function wrapBounds(point: Point, width: number, height: number): Point {
+    const x = (point.x + width) % width;
+    const y = (point.y + height) % height;
+    return {x, y};
+}

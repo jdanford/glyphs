@@ -43,7 +43,7 @@ export class GlyphEditor extends GlyphGrid {
     }
 
     initState(): void {
-        this.cursor = new ProgramCursor();
+        this.cursor = new ProgramCursor(this.width, this.height);
         this.stack = [];
         this.running = false;
         this.stepSpeed = StepSpeed.Slow;
@@ -88,23 +88,21 @@ export class GlyphEditor extends GlyphGrid {
     }
 
     step(): void {
-        const i = this.index(this.cursor.position.x, this.cursor.position.y);
-
         this.clearActiveCell();
         this.activeCell = this.getCurrentCell();
         this.activeCell.classList.add(ClassName.Active);
-
         const alias = this.activeCell.title;
+
+        this.executeAlias(alias);
+        this.cursor.moveForward();
+        this.emit("step");
+    }
+
+    executeAlias(alias: string): void {
         if (alias) {
             const glyph = this.dictionary[alias];
             glyph.effect(this);
         }
-
-        this.cursor.advance();
-        this.cursor.position.x = (this.cursor.position.x + this.width) % this.width;
-        this.cursor.position.y = (this.cursor.position.y + this.height) % this.height;
-
-        this.emit("step");
     }
 
     start(): void {
@@ -137,6 +135,7 @@ export class GlyphEditor extends GlyphGrid {
         this.clearOutput();
         this.emit("reset");
     }
+
 
     clearActiveCell(): void {
         if (this.activeCell) {

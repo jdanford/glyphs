@@ -15,11 +15,11 @@ const CLEAR_MESSAGE: string = "Clear grid?";
 export class App {
     private editorGridElement: HTMLElement;
     private outputElement: HTMLElement;
-    private fastButton: HTMLElement;
-    private startButton: HTMLElement;
-    private stepButton: HTMLElement;
-    private stopButton: HTMLElement;
     private clearButton: HTMLElement;
+    private stopButton: HTMLElement;
+    private stepButton: HTMLElement;
+    private startButton: HTMLElement;
+    private fastButton: HTMLElement;
     private helpButton: HTMLElement;
     private darkThemeCheckbox: HTMLInputElement;
     private editor: GlyphEditor;
@@ -30,11 +30,11 @@ export class App {
     constructor() {
         this.editorGridElement = getElementById("editor-grid");
         this.outputElement = getElementById("output");
-        this.fastButton = getElementById("fast-button");
-        this.startButton = getElementById("start-button");
-        this.stepButton = getElementById("step-button");
-        this.stopButton = getElementById("stop-button");
         this.clearButton = getElementById("clear-button");
+        this.stopButton = getElementById("stop-button");
+        this.stepButton = getElementById("step-button");
+        this.startButton = getElementById("start-button");
+        this.fastButton = getElementById("fast-button");
         this.helpButton = getElementById("help-button");
         this.darkThemeCheckbox = getElementById("dark-theme-checkbox") as HTMLInputElement;
         this.stateChangeListener = this.onStateChange.bind(this);
