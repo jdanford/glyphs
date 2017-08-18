@@ -14,6 +14,7 @@ const CLEAR_MESSAGE: string = "Clear grid?";
 
 export class App {
     private editorGridElement: HTMLElement;
+    private consoleElement: HTMLElement;
     private outputElement: HTMLElement;
     private clearButton: HTMLElement;
     private stopButton: HTMLElement;
@@ -29,7 +30,8 @@ export class App {
 
     constructor() {
         this.editorGridElement = getElementById("editor-grid");
-        this.outputElement = getElementById("output");
+        this.consoleElement = getElementById("console");
+        this.outputElement = getElementById("console-out");
         this.clearButton = getElementById("clear-button");
         this.stopButton = getElementById("stop-button");
         this.stepButton = getElementById("step-button");
@@ -41,27 +43,28 @@ export class App {
 
         this.initChildren();
         this.initListeners();
-        this.updateOutputSize();
+        this.updateConsoleSize();
         this.setButtonState(false);
         this.setDarkTheme(false);
     }
 
     private initChildren(): void {
         const initialHash = getWindowHash();
-        const editorOptions = {
+        this.editor = new GlyphEditor({
             glyphs,
             initialHash,
             width: GRID_WIDTH,
             height: GRID_HEIGHT,
-            gridElement: this.editorGridElement,
-            outputElement: this.outputElement
-        };
-        this.editor = new GlyphEditor(editorOptions);
+            gridElement: this.editorGridElement
+        });
 
         const selectorElement = getElementById("selector-container");
         const selectorGridElement = getElementById("selector-grid");
-        const selectorOptions = { glyphs, containerElement: selectorElement, gridElement: selectorGridElement };
-        this.selector = new GlyphSelector(selectorOptions);
+        this.selector = new GlyphSelector({
+            glyphs,
+            containerElement: selectorElement,
+            gridElement: selectorGridElement
+        });
 
         const modalContainer = getElementById("modal-container");
         ModalWindow.setModalContainer(modalContainer);
@@ -77,17 +80,21 @@ export class App {
         this.editor.addListener("changeSpeed", this.stateChangeListener);
         this.editor.addListener("updateHash", setWindowHash);
 
+        window.addEventListener("resize", _ => {
+            this.updateConsoleSize();
+        });
+
         window.onhashchange = _ => {
             const hash = getWindowHash();
             this.editor.loadFromHash(hash);
         }
 
-        this.editor.addListener("endEditCell", () => {
-            this.selector.hide();
+        this.editor.addListener("print", (text: string) => {
+            this.outputElement.textContent += text;
         });
 
-        this.selector.addListener("close", () => {
-            this.editor.endEditCell();
+        this.editor.addListener("clearConsole", () => {
+            this.outputElement.textContent = "";
         });
 
         this.editor.addListener("editCell", (cellElement: HTMLElement) => {
@@ -98,6 +105,14 @@ export class App {
                 this.editor.setGlyph(cellElement, alias);
                 this.editor.saveHash();
             });
+        });
+
+        this.editor.addListener("endEditCell", () => {
+            this.selector.hide();
+        });
+
+        this.selector.addListener("close", () => {
+            this.editor.endEditCell();
         });
 
         this.clearButton.addEventListener("click", _ => {
@@ -143,9 +158,9 @@ export class App {
         this.updateButtonState();
     }
 
-    private updateOutputSize(): void {
+    private updateConsoleSize(): void {
         const width = this.editorGridElement.offsetWidth;
-        this.outputElement.style.setProperty("width", `${width}px`);
+        this.consoleElement.style.setProperty("width", `${width}px`);
     }
 
     private setButtonState(running: boolean): void {

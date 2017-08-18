@@ -14,12 +14,10 @@ interface StringTable {
 }
 
 export interface GlyphEditorOptions extends GlyphGridOptions {
-    outputElement: HTMLElement;
     initialHash: string;
 }
 
 export class GlyphEditor extends GlyphGrid {
-    private outputElement: HTMLElement;
     private activeCell?: HTMLElement;
     private editingCell?: HTMLElement;
     private lastStepTime: number;
@@ -33,12 +31,9 @@ export class GlyphEditor extends GlyphGrid {
 
     constructor(options: GlyphEditorOptions) {
         super(options);
-
         this.gridElement = options.gridElement;
-        this.outputElement = options.outputElement;
-
         this.initState();
-        this.initTables(options.glyphs);
+        this.initTables();
         this.loadFromHash(options.initialHash);
     }
 
@@ -68,11 +63,11 @@ export class GlyphEditor extends GlyphGrid {
         this.emit("endEditCell");
     }
 
-    initTables(glyphs: Glyph[]): void {
+    initTables(): void {
         this.charTable = {};
         this.aliasTable = {};
 
-        glyphs.forEach((glyph, i) => {
+        this.glyphs.forEach((glyph, i) => {
             const { alias } = glyph;
             const char = ENCODING_CHARS[i];
             this.charTable[alias] = char;
@@ -132,10 +127,9 @@ export class GlyphEditor extends GlyphGrid {
     reset(): void {
         this.initState();
         this.clearActiveCell();
-        this.clearOutput();
+        this.clearConsole();
         this.emit("reset");
     }
-
 
     clearActiveCell(): void {
         if (this.activeCell) {
@@ -147,7 +141,7 @@ export class GlyphEditor extends GlyphGrid {
     clear(): void {
         this.reset();
         this.clearGrid();
-        this.clearOutput();
+        this.clearConsole();
     }
 
     setRunning(running: boolean): boolean {
@@ -241,15 +235,15 @@ export class GlyphEditor extends GlyphGrid {
     }
 
     print(text: string): void {
-        const preElement = document.createElement("pre");
-        preElement.textContent = text;
-        this.outputElement.appendChild(preElement);
+        this.emit("print", text);
     }
 
-    clearOutput(): void {
-        while (this.outputElement.firstChild) {
-            this.outputElement.removeChild(this.outputElement.firstChild);
-        }
+    println(text: string): void {
+        this.print(text + "\n");
+    }
+
+    clearConsole(): void {
+        this.emit("clearConsole");
     }
 
     getCurrentCell(): HTMLElement {

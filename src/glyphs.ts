@@ -170,7 +170,7 @@ export const glyphs: Glyph[] = [{
     doc: "Prints the first item on the stack.",
     effect(editor) {
         const value = editor.getStackItem(0);
-        editor.print(value.toString());
+        editor.println(value.toString());
     }
 }, {
     alias: "eye",

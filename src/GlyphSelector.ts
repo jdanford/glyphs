@@ -16,14 +16,13 @@ export class GlyphSelector extends GlyphGrid {
     constructor(options: GlyphSelectorOptions) {
         const glyphCount = options.glyphs.length;
         const length = Math.ceil(Math.sqrt(glyphCount));
-        const gridOptions = {
+        super({
             width: length,
             height: length,
             gridElement: options.gridElement,
             glyphs: options.glyphs
-        };
+        });
 
-        super(gridOptions);
         this.containerElement = options.containerElement;
         this.keyPressedListener = this.onKeyPressed.bind(this);
     }
