@@ -37,7 +37,6 @@ export class ModalWindow {
     constructor(options: ModalWindowOptions) {
         this.modalElement = options.modalElement;
         this.closeButton = getChildByClassName(this.modalElement, "close-button");
-
         this.initListeners();
     }
 

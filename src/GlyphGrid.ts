@@ -95,4 +95,8 @@ export abstract class GlyphGrid extends EventEmitter {
     index(x: number, y: number): number {
         return y * this.width + x;
     }
+
+    get elementWidth(): number {
+        return this.gridElement.offsetWidth;
+    }
 }

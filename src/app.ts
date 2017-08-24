@@ -5,6 +5,7 @@ import { glyphs } from "./glyphs";
 import { StepSpeed } from "./StepSpeed";
 import { GlyphEditor } from "./GlyphEditor";
 import { GlyphSelector } from "./GlyphSelector";
+import { Console } from "./Console";
 import { ModalWindow } from "./ModalWindow";
 import { HelpWindow } from "./HelpWindow";
 
@@ -13,9 +14,6 @@ const GRID_HEIGHT: number = 24;
 const CLEAR_MESSAGE: string = "Clear grid?";
 
 export class App {
-    private editorGridElement: HTMLElement;
-    private consoleElement: HTMLElement;
-    private outputElement: HTMLElement;
     private clearButton: HTMLElement;
     private stopButton: HTMLElement;
     private stepButton: HTMLElement;
@@ -25,13 +23,11 @@ export class App {
     private darkThemeCheckbox: HTMLInputElement;
     private editor: GlyphEditor;
     private selector: GlyphSelector;
+    private console: Console;
     private helpWindow: HelpWindow;
     private stateChangeListener: (event: KeyboardEvent) => void;
 
     constructor() {
-        this.editorGridElement = getElementById("editor-grid");
-        this.consoleElement = getElementById("console");
-        this.outputElement = getElementById("console-out");
         this.clearButton = getElementById("clear-button");
         this.stopButton = getElementById("stop-button");
         this.stepButton = getElementById("step-button");
@@ -45,17 +41,17 @@ export class App {
         this.initListeners();
         this.updateConsoleSize();
         this.setButtonState(false);
-        this.setDarkTheme(false);
     }
 
     private initChildren(): void {
         const initialHash = getWindowHash();
+        const editorGridElement = getElementById("editor-grid");
         this.editor = new GlyphEditor({
             glyphs,
             initialHash,
             width: GRID_WIDTH,
             height: GRID_HEIGHT,
-            gridElement: this.editorGridElement
+            gridElement: editorGridElement,
         });
 
         const selectorElement = getElementById("selector-container");
@@ -63,8 +59,11 @@ export class App {
         this.selector = new GlyphSelector({
             glyphs,
             containerElement: selectorElement,
-            gridElement: selectorGridElement
+            gridElement: selectorGridElement,
         });
+
+        const consoleElement = getElementById("console");
+        this.console = new Console({ containerElement: consoleElement });
 
         const modalContainer = getElementById("modal-container");
         ModalWindow.setModalContainer(modalContainer);
@@ -90,11 +89,11 @@ export class App {
         }
 
         this.editor.addListener("print", (text: string) => {
-            this.outputElement.textContent += text;
+            this.console.print(text);
         });
 
         this.editor.addListener("clearConsole", () => {
-            this.outputElement.textContent = "";
+            this.console.clear();
         });
 
         this.editor.addListener("editCell", (cellElement: HTMLElement) => {
@@ -149,7 +148,7 @@ export class App {
         });
 
         this.darkThemeCheckbox.addEventListener("change", _ => {
-            this.setDarkTheme(this.darkThemeEnabled);
+            this.darkThemeEnabled = this.darkThemeCheckbox.checked;
         });
     }
 
@@ -159,8 +158,7 @@ export class App {
     }
 
     private updateConsoleSize(): void {
-        const width = this.editorGridElement.offsetWidth;
-        this.consoleElement.style.setProperty("width", `${width}px`);
+        this.console.elementWidth = this.editor.elementWidth;
     }
 
     private setButtonState(running: boolean): void {
@@ -180,10 +178,10 @@ export class App {
     }
 
     private get darkThemeEnabled(): boolean {
-        return this.darkThemeCheckbox.checked;
+        return document.body.classList.contains(ClassName.DarkTheme);
     }
 
-    private setDarkTheme(enabled: boolean): void {
+    private set darkThemeEnabled(enabled: boolean) {
         document.body.classList.toggle(ClassName.DarkTheme, enabled);
     }
 }
