@@ -241,6 +241,7 @@ body.modal-open #modal-container {
     --icon-size: 24px;
     float: left;
     padding: var(--inner-margin-size);
+    text-align: center;
 }
 
 .glyphs dd {
