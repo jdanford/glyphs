@@ -99,7 +99,7 @@ export class App {
         this.editor.addListener("editCell", (cellElement: HTMLElement) => {
             const position = computeAbsolutePosition(cellElement);
             this.selector.show(position);
-            this.selector.once("selectGlyph", (alias: string) => {
+            this.selector.addListener("selectGlyph", (alias: string) => {
                 this.editor.endEditCell();
                 this.editor.setGlyph(cellElement, alias);
                 this.editor.saveHash();
@@ -108,6 +108,7 @@ export class App {
 
         this.editor.addListener("endEditCell", () => {
             this.selector.hide();
+            this.selector.removeAllListeners("selectGlyph");
         });
 
         this.selector.addListener("close", () => {
