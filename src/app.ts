@@ -14,6 +14,7 @@ const GRID_HEIGHT: number = 24;
 const CLEAR_MESSAGE: string = "Clear grid?";
 
 export class App {
+    private editorContainer: HTMLElement;
     private clearButton: HTMLElement;
     private stopButton: HTMLElement;
     private stepButton: HTMLElement;
@@ -28,6 +29,7 @@ export class App {
     private stateChangeListener: (event: KeyboardEvent) => void;
 
     constructor() {
+        this.editorContainer = getElementById("editor-container");
         this.clearButton = getElementById("clear-button");
         this.stopButton = getElementById("stop-button");
         this.stepButton = getElementById("step-button");
@@ -47,7 +49,7 @@ export class App {
         const initialHash = getWindowHash();
         const editorGridElement = getElementById("editor-grid");
         this.editor = new GlyphEditor({
-            glyphs,
+            glyphs: glyphs, // tsc doesn't use mangled import name for shorthand syntax
             initialHash,
             width: GRID_WIDTH,
             height: GRID_HEIGHT,
@@ -57,7 +59,7 @@ export class App {
         const selectorElement = getElementById("selector-container");
         const selectorGridElement = getElementById("selector-grid");
         this.selector = new GlyphSelector({
-            glyphs,
+            glyphs: glyphs,
             containerElement: selectorElement,
             gridElement: selectorGridElement,
         });
@@ -97,6 +99,8 @@ export class App {
         });
 
         this.editor.addListener("editCell", (cellElement: HTMLElement) => {
+            this.editor.pause();
+
             const position = computeAbsolutePosition(cellElement);
             this.selector.show(position);
             this.selector.addListener("selectGlyph", (alias: string) => {
@@ -113,6 +117,14 @@ export class App {
 
         this.selector.addListener("close", () => {
             this.editor.endEditCell();
+        });
+
+        this.editorContainer.addEventListener("click", event => {
+            this.editor.endEditCell();
+        });
+
+        this.editorContainer.childNodes.forEach(element => {
+            element.addEventListener("click", event => event.stopPropagation());
         });
 
         this.clearButton.addEventListener("click", _ => {
