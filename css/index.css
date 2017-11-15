@@ -86,14 +86,7 @@ a:visited {
     width: 40px;
     padding: 2px 5px;
     border: var(--border-width) solid var(--border-color);
-    background: var(--background-color);
-    color: var(--foreground-color);
-}
-
-.controls button {
-    width: 40px;
-    padding: 2px 5px;
-    border: var(--border-width) solid var(--border-color);
+    border-radius: 0;
     background: var(--background-color);
     color: var(--foreground-color);
 }
