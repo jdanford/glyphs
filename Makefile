@@ -7,10 +7,10 @@ all: build
 build: $(OUTFILE)
 
 $(OUTFILE): tsconfig.json $(shell find src -type f)
-	tsc --outFile $(OUTFILE)
+	@tsc --outFile $(OUTFILE)
 
 clean:
-	rm -f $(OUTFILE)
+	@rm -f $(OUTFILE)
 
 serve: build $(OUTFILE)
 	@hs
