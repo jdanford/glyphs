@@ -1,6 +1,6 @@
+import { Key } from "ts-keycode-enum";
 import { getChildByClassName } from "./utils";
 import { ClassName } from "./ClassName";
-import { KeyCode } from "./KeyCode";
 
 export interface ModalWindowOptions {
     modalElement: HTMLElement;
@@ -50,7 +50,7 @@ export class ModalWindow {
             return;
         }
 
-        if (event.keyCode === KeyCode.Escape) {
+        if (event.keyCode === Key.Escape) {
             this.hide();
         }
     }

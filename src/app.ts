@@ -123,7 +123,7 @@ export class App {
             this.editor.endEditCell();
         });
 
-        this.editorContainer.childNodes.forEach(element => {
+        Array.from(this.editorContainer.childNodes).forEach(element => {
             element.addEventListener("click", event => event.stopPropagation());
         });
 

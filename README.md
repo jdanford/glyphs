@@ -5,11 +5,12 @@ A two-dimensional pictorial language in the browser, sort of like [Befunge](http
 ## Development
 
 Prerequisites:
-- Make
-- TypeScript >= 2.0
-- [http-server] (optional)
+- Webpack
 
-If you have [http-server] installed, run `make serve` and open the URL it gives you, otherwise use your favorite HTTP server.
+Running:
+- `npm install`/`yarn install`
+- `webpack`
+- `hs` (or other web server)
 
 ## Usage (in app)
 
@@ -33,5 +34,3 @@ Click the question mark button to view documentation and examples.
 - [Font Awesome](http://fontawesome.io/) by Dave Gandy
 - [Olical/EventEmitter](https://github.com/Olical/EventEmitter)
 - [nfriend/ts-keycode-enum](https://github.com/nfriend/ts-keycode-enum)
-
-[http-server]: https://github.com/indexzero/http-server

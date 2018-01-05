@@ -1,5 +1,4 @@
-/// <reference path="EventEmitter.d.ts" />
-
+import EventEmitter = require("wolfy87-eventemitter");
 import { getCellElement } from "./utils";
 import { IconClassName } from "./IconClassName";
 import { Glyph } from "./glyphs";

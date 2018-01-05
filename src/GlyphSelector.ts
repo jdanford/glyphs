@@ -1,4 +1,4 @@
-import { KeyCode } from "./KeyCode";
+import { Key } from "ts-keycode-enum";
 import { Point } from "./Point";
 import { Glyph } from "./glyphs";
 import { GlyphGrid } from "./GlyphGrid";
@@ -38,7 +38,7 @@ export class GlyphSelector extends GlyphGrid {
     }
 
     private onKeyPressed(event: KeyboardEvent): void {
-        if (event.keyCode === KeyCode.Escape) {
+        if (event.keyCode === Key.Escape) {
             this.emit("close");
         }
     }
