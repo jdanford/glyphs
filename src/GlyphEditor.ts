@@ -83,14 +83,17 @@ export class GlyphEditor extends GlyphGrid {
     }
 
     step(): void {
+        if (this.activeCell) {
+            this.cursor.moveForward();
+        }
+
         this.clearActiveCell();
         this.activeCell = this.getCurrentCell();
         this.activeCell.classList.add(ClassName.Active);
         const alias = this.activeCell.title;
 
-        this.executeAlias(alias);
-        this.cursor.moveForward();
         this.emit("step");
+        this.executeAlias(alias);
     }
 
     executeAlias(alias: string): void {

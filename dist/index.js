@@ -898,13 +898,15 @@ class GlyphEditor extends GlyphGrid_1.GlyphGrid {
         }
     }
     step() {
+        if (this.activeCell) {
+            this.cursor.moveForward();
+        }
         this.clearActiveCell();
         this.activeCell = this.getCurrentCell();
         this.activeCell.classList.add(ClassName_1.ClassName.Active);
         const alias = this.activeCell.title;
-        this.executeAlias(alias);
-        this.cursor.moveForward();
         this.emit("step");
+        this.executeAlias(alias);
     }
     executeAlias(alias) {
         if (alias) {
